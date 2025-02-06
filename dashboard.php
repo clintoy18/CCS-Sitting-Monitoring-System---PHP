@@ -1,7 +1,8 @@
 <?php
+session_start();
 
+include "connection.php";
 
-
-echo'Log In successful!';
+echo'Welcome to CCS!';
 
 ?>
