@@ -89,17 +89,30 @@ if (isset($_POST["submit"])) {
                         <input type="text" name="lastname" id="lastname" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter your last name" required>
                     </div>
 
-                    <!-- Course -->
-                    <div>
-                        <label for="course" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Course</label>
-                        <input type="text" name="course" id="course" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter your course" required>
-                    </div>
+                   <!-- Course Dropdown -->
+                <div>
+                    <label for="course" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Course</label>
+                    <select name="course" id="course" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option value="" disabled selected>Select your course</option>
+                        <option value="BSIT">BSIT - Bachelor of Science in Information Technology</option>
+                        <option value="BSCS">BSCS - Bachelor of Science in Computer Science</option>
+                        
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
 
-                    <!-- Year Level -->
-                    <div>
-                        <label for="yearlevel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Year Level</label>
-                        <input type="text" name="yearlevel" id="yearlevel" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter your year level" required>
-                    </div>
+                <!-- Year Level Dropdown -->
+                <div>
+                    <label for="yearlevel" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Year Level</label>
+                    <select name="yearlevel" id="yearlevel" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+                        <option value="" disabled selected>Select your year level</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
 
                     <!-- Password -->
                     <div>

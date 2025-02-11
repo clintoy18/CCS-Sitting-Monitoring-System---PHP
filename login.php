@@ -21,7 +21,9 @@ if (isset($_POST['submit'])) {
             // Store only the user ID in the session, not the password
             $_SESSION['idno'] = $row['idno'];  
             $_SESSION['lname'] = $row['lname'];   
-            $_SESSION['fname'] = $row['fname']; 
+              
+            
+           
             // Redirect to dashboard after successful login
             header('Location: dashboard.php');
             exit();
