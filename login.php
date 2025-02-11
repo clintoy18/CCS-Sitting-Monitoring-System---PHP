@@ -1,7 +1,6 @@
 <?php
 session_start();
 include("connection.php"); // Include your DB connection
-
 // Define error variable
 $error = "";
 
@@ -10,23 +9,24 @@ if (isset($_POST['submit'])) {
     $idno = mysqli_real_escape_string($conn, $_POST['idno']);
     $password = mysqli_real_escape_string($conn, $_POST['password']); 
 
-    // Check if username or password is empty
+    // Check if ID or password is empty
     if ($idno == "" || $password == "") {
-        $error = "Either id no or password field is empty.";
+        $error = "Either ID number or password field is empty.";
     } else {
-        // password verification 
-        $result = mysqli_query($conn, "SELECT * FROM studentinfo WHERE idno = '$idno' AND `password` ='$password' ") or die("Could not execute the select query.");
+        // Password verification 
+        $result = mysqli_query($conn, "SELECT * FROM studentinfo WHERE idno = '$idno' AND `password` ='$password'") or die("Could not execute the select query.");
         $row = mysqli_fetch_assoc($result);
 
         if ($row) { 
-            $_SESSION['idno'] = $row['idno'];
-            $_SESSION['password'] = $row['password'];
-            // Redirect to dashboard after success login
+            // Store only the user ID in the session, not the password
+            $_SESSION['idno'] = $row['idno'];  
+            $_SESSION['lname'] = $row['lname'];   
+            $_SESSION['fname'] = $row['fname']; 
+            // Redirect to dashboard after successful login
             header('Location: dashboard.php');
-           
             exit();
         } else {
-            $error; 
+            $error = "Invalid ID or password."; // Set the error message
         }
     }
 }
@@ -39,6 +39,15 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+   
+   <script>
+        setTimeout(function() {
+            const errorMessage = document.getElementById('error-message');
+            if(errorMessage){
+                errorMessage.style.display = 'none';
+            }      
+        }, 2000);
+    </script>
 </head>
 <body>
 
@@ -51,7 +60,7 @@ if (isset($_POST['submit'])) {
                     
                     <!-- Error message display -->
                     <?php if ($error): ?>
-                        <div class="bg-red-500 text-white p-2 rounded mb-4">
+                        <div id="error-message" class="bg-red-500 text-white p-2 rounded mb-4">
                             <?php echo $error; ?>
                         </div>
                     <?php endif; ?>
@@ -71,7 +80,7 @@ if (isset($_POST['submit'])) {
                     <form class="space-y-4 md:space-y-6" action="" method="POST">
                         <div>
                             <label for="idno" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ID no.</label>
-                            <input type="text" name="idno" id="idno" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter your username" required>
+                            <input type="text" name="idno" id="idno" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter your ID number" required>
                         </div>
                         <div>
                             <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>

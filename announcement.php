@@ -5,6 +5,3 @@ include "layout.php";
 include "auth.php"
 
 ?>
-
-
-

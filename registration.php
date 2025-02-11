@@ -17,7 +17,8 @@ if (isset($_POST["submit"])) {
     if ($idno == "" || $fname == "" || $lname == "" || $midname == "" || $course == "" || $yearlevel == "" || $password == "" ) {
         echo "<font color='red'>Error: All fields are required.</font>";
     } else {
-
+        // Hash password for security
+        // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         // SQL query for insertion
         $query = "INSERT INTO studentinfo (idno, fname, lname, midname, course, year_level, password, address) 
                   VALUES ('$idno', '$fname', '$lname', '$midname', '$course', '$yearlevel', '$password', '$address')";
