@@ -21,6 +21,16 @@ if (isset($_POST['submit'])) {
             // Store only the user ID in the session, not the password
             $_SESSION['idno'] = $row['idno'];  
             $_SESSION['lname'] = $row['lname'];   
+            $_SESSION['fname'] = $row['fname'];   
+            $_SESSION['midname'] = $row['midname'];  
+            $_SESSION['course'] = $row['course'];  
+            $_SESSION['year_level'] = $row['year_level'];  
+            $_SESSION['address'] = $row['address'];  
+            
+
+
+            
+
               
             
            
