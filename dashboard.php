@@ -4,22 +4,20 @@ session_start();
 include "layout.php"; 
 include "auth.php";
 
-
 ?>
+
 
 <div class="px-8 py-8 ps-8 grid grid-cols-3 gap-2">
    
     <div class="box-content bg-blue-900 md:box-border border-4 p-8 text-white "> <h1 class="text-center text-xl pb-4">Student Information</h1>
     <img src="ccslogo.png" alt="" class="rounded-full mx-auto ">
-    <div class="flex-items-start p-8">
-    <p><b><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-    <path fill-rule="evenodd" d="M10 10a3 3 0 100-6 3 3 0 000 6zM10 12a7 7 0 00-7 7v1a7 7 0 0014 0v-1a7 7 0 00-7-7z" clip-rule="evenodd" />
-    </svg> IDNO: </b><?php echo $userID ?></p>
-    <p><b>Name: </b><?php echo $fname . "  ".$ulname  ?></p>
-    <p><b>Course:</b>  <?php echo $course ?> </p>
-    <p><b>Year: </b> <?php echo $yearlevel ?> </p>
+    <div class="flex-items-start p-8">  
+     <p><b> IDNO: </b>&nbsp;&nbsp;&nbsp;<?php echo $userID ?></p>
+    <p><b>Name: </b>&nbsp;&nbsp;<?php echo $fname . "  ".$lname  ?></p>
+    <p><b>Course:</b>&nbsp;  <?php echo $course ?> </p>
+    <p><b>Year: </b> &nbsp;&nbsp; &nbsp;&nbsp;<?php echo $yearlevel ?> </p>
     <p><b>Address : </b><?php echo $address ?> </p>
-    <p><b>Session:</b> </p>
+    <p><b>Session:</b>&nbsp;&nbsp; &nbsp; </p>
     <p></p>
     </div>
     </div>

@@ -1,18 +1,19 @@
 <?php
 include "connection.php";
 
-// Check if the user is logged in and the session variable exists
-if (isset($_SESSION['idno'])) {
-    $userID = $_SESSION['idno'];  // Get the logged-in user ID from the session
-    $ulname = $_SESSION['lname'];
-    $fname = $_SESSION['fname'];
-    $midname = $_SESSION['midname'];
-    $course = $_SESSION['course'];
-    $yearlevel = $_SESSION['year_level'];
-    $address = $_SESSION['address'];
+$userID = $_SESSION["idno"];
 
-} else {
-    // If the session variable doesn't exist, redirect to the login page or show an error
-    echo "User is not logged in.";
+$result = mysqli_query($conn, "SELECT * FROM studentinfo WHERE idno = '$userID'");
+$row = mysqli_fetch_assoc($result);
+
+if($row){
+     $userID = $row['idno'];
+     $fname = $row['fname'];
+     $lname = $row['lname'];
+     $midname = $row['midname'];
+     $course = $row['course'];
+     $yearlevel = $row['year_level'];
+     $address = $row['address'];
 }
+
 ?>
