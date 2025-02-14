@@ -12,7 +12,18 @@ include "auth.php";
     <title>Dashboard</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>  
     <link href="https://cdn.jsdelivr.net/npm/flowbite@1.5.2/dist/flowbite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@9.0.3"></script>
+    <script src="./assets/vendor/jquery/dist/jquery.min.js"></script>
+    <script src="./assets/vendor/datatables.net/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.2/dist/flowbite.min.js"></script>
+    <style>
+      .dt-layout-row:has(.dt-search),
+      .dt-layout-row:has(.dt-length),
+      .dt-layout-row:has(.dt-paging) {
+       display: none !important;
+}
+
+    </style>
 </head>
 <body>   
 <nav class="bg-white border-gray-200 dark:bg-gray-900">
@@ -58,7 +69,7 @@ include "auth.php";
         <a href="dashboard.php" class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Home</a>
       </li>
       <li>
-        <a href="remainingsession.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">View Remaining Session</a>
+        <a href="remainingsession.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">View Available Rooms</a>
       </li>
       <li>
         <a href="sitinrules.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Sit-in Rules</a>
