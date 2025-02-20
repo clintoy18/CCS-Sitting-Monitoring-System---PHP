@@ -26,13 +26,8 @@ if (isset($_POST['submit'])) {
             $_SESSION['course'] = $row['course'];  
             $_SESSION['year_level'] = $row['year_level'];  
             $_SESSION['address'] = $row['address'];  
-            
-
-
-            
-
-              
-            
+            $_SESSION['session'] = $row['session'];  
+                
            
             // Redirect to dashboard after successful login
             header('Location: dashboard.php');

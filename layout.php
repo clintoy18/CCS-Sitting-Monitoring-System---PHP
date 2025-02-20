@@ -1,5 +1,4 @@
 <?php
-
 include "connection.php";
 include "auth.php";
 ?>
@@ -25,7 +24,7 @@ include "auth.php";
 
     </style>
 </head>
-<body>   
+<body class ="bg-[#D4D9E3]">   
 <nav class="bg-white border-gray-200 dark:bg-gray-900">
   <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
   <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
@@ -86,11 +85,15 @@ include "auth.php";
 </nav>   
 
 <!-- Page-specific content will be inserted here -->
-<div class="container">
+<div>
+
     <?php
     // Include the page content from the individual pages here
+
     if (isset($content)) {
         echo $content;
+        
+  
     }
     ?>
 </div>

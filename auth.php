@@ -14,6 +14,7 @@ if($row){
      $course = $row['course'];
      $yearlevel = $row['year_level'];
      $address = $row['address'];
+     $session = $row['session'];
 }
 
 ?>

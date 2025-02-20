@@ -4,8 +4,8 @@ include "layout.php";
 include "auth.php";
 ?>
 
-<h1 class="text-3xl font-semibold text-center text-gray-800 mb-4">Available Rooms</h1>
-<div class="flex flex-col" data-hs-datatable='{
+<h1 class="text-3xl font-semibold text-center text-gray-800  py-4">Available Rooms</h1>
+<div class="px-8 py-8 ps-8 grid gap-2" data-hs-datatable='{
     "pageLength": 10,
     "pagingOptions": {
         "pageBtnClasses": "min-w-[40px] flex justify-center items-center text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
@@ -63,11 +63,11 @@ include "auth.php";
 
                                         <tbody class="divide-y divide-gray-200">
                                                 <?php
-                                                include 'connection.php'; // Include your database connection file
-                                                // Open the database connection
+                                                // include 'connection.php'; // Include your database connection file
+                                                // // Open the database connection
 
-                                                $sql = "SELECT * FROM reservations"; // Adjust the query as per your table structure
-                                                $result = $conn->query($sql);
+                                                // $sql = "SELECT * FROM reservations"; // Adjust the query as per your table structure
+                                                // $result = $conn->query($sql);
 
                                                 if ($result->num_rows > 0) {
                                                         while($row = $result->fetch_assoc()) {
