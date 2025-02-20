@@ -1,20 +1,10 @@
 <?php
 include "connection.php";
 
-$userID = $_SESSION["idno"];
-
-$result = mysqli_query($conn, "SELECT * FROM studentinfo WHERE idno = '$userID'");
-$row = mysqli_fetch_assoc($result);
-
-if($row){
-     $userID = $row['idno'];
-     $fname = $row['fname'];
-     $lname = $row['lname'];
-     $midname = $row['midname'];
-     $course = $row['course'];
-     $yearlevel = $row['year_level'];
-     $address = $row['address'];
-     $session = $row['session'];
-}
+// Fetch current user data
+$userID = $_SESSION['idno'];
+$query = "SELECT * FROM studentinfo WHERE idno = '$userID'";
+$result = mysqli_query($conn, $query);
+$userData = mysqli_fetch_assoc($result);
 
 ?>
