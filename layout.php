@@ -24,7 +24,7 @@ include "auth.php";
 
     </style>
 </head>
-<body class ="bg-[#D4D9E3]">   
+<body class ="bg-[#D4D9E3] p">   
 <nav class="bg-white border-gray-200 dark:bg-gray-900">
   <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
   <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
