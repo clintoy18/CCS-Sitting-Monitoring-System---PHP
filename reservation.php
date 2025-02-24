@@ -1,11 +1,10 @@
 <?php
 session_start();
-include "connection.php";
 include "layout.php"; 
+include "auth.php";
 ?>
 
-<!-- SITIN HISTORY -->
-<h1 class="text-3xl font-semibold text-center text-gray-800 p-8 ">SIT-IN HISTORY</h1>
+<h1 class="text-3xl font-semibold text-center text-gray-800 p-8 ">Available Rooms</h1>
 <div class="px-8 py-8 grid gap-2" data-hs-datatable='{
     "pageLength": 10,
     "pagingOptions": {
@@ -38,7 +37,7 @@ include "layout.php";
                             </th>
                             <th scope="col" class="py-1 group text-start font-normal focus:outline-none">
                                 <div class="py-1 px-2.5 inline-flex items-center border border-transparent text-sm text-gray-500 rounded-md hover:border-gray-200">
-                                    Time/Session Start/End
+                                   Room Capacity
                                     <svg class="size-3.5 ms-1 -me-0.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path class="hs-datatable-ordering-desc:text-blue-600" d="m7 15 5 5 5-5"></path>
                                         <path class="hs-datatable-ordering-asc:text-blue-600" d="m7 9 5-5 5 5"></path>
@@ -54,39 +53,82 @@ include "layout.php";
                                     </svg>
                                 </div>
                             </th>
-                          
+                            <th scope="col" class="py-2 px-3 text-end font-normal text-center text-sm text-gray-500 --exclude-from-ordering">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <?php
-                        include 'connection.php'; // Include your database connection file
-                        // Open the database connection
+                    <?php
+                        include 'connection.php';
+                  
 
-                        $sql = "SELECT * FROM reservations WHERE idno = '$userID' ";// Adjust the query as per your table structure
+                        if (!isset($_SESSION["idno"])) {
+                        echo "<tr><td colspan='5' class='p-3 whitespace-nowrap text-sm text-red-600'>Please log in to reserve a room.</td></tr>";
+                        exit;
+                        }
+
+                        $userID = $_SESSION["idno"];
+
+                        // Fetch student's remaining sessions
+                        $check_sessions = "SELECT `session` FROM studentinfo WHERE idno = ?";
+                        $stmt = $conn->prepare($check_sessions);
+                        $stmt->bind_param("i", $userID);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $student = $result->fetch_assoc();
+                        $remaining_sessions = $student["session"];
+
+                        $sql = "SELECT * FROM rooms";
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
-                            while($row = $result->fetch_assoc()) {
+                        while ($row = $result->fetch_assoc()) {
+                                $room_id = $row["room_id"];
+
+                                // Check if user already reserved this room
+                                $check_reservation = "SELECT * FROM reservations WHERE idno = ? AND room_id = ? AND status = 'reserved'";
+                                $stmt = $conn->prepare($check_reservation);
+                                $stmt->bind_param("ii", $userID, $room_id);
+                                $stmt->execute();
+                                $reservation_result = $stmt->get_result();
+                                $isReserved = $reservation_result->num_rows > 0;
+
                                 echo "<tr>";
-                                echo "<td class='p-3 whitespace-nowrap text-sm font-medium text-gray-800'>" . $row["room_id"] . "</td>";
-                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["idno"] . "</td>";
-                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["start_time"] . " - " . $row["end_time"] . "</td>";
-                             
-                                $status = $row["status"];
-                                $colorClass = ($status == "cancelled") ? "text-red-600" : (($status == "completed") ? "text-green-600" : "text-gray-800");
-                              
-                                echo "<td class='p-3 whitespace-nowrap text-sm  $colorClass'>" . $row["status"] . "</td>";
-                                echo "<td class='p-3 whitespace-nowrap text-end text-sm font-medium text-center'>
-                                    
-                                    </td>";
+                                echo "<td class='p-3 whitespace-nowrap text-sm font-medium text-gray-800'>" . $room_id . "</td>";
+                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["room_name"] . "</td>";
+                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["capacity"] . "</td>";
+                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["status"] . "</td>";
+                                echo "<td class='p-3 whitespace-nowrap text-end text-sm font-medium text-center'>";
+                                
+                                if ($remaining_sessions <= 0) {
+                                echo "<span class='text-red-600 font-semibold'>No More Reservations Allowed</span>";
+                                } elseif ($row["capacity"] <= 0) {
+                                echo "<span class='text-red-600 font-semibold'>Room is Full</span>";
+                                } elseif ($isReserved) {
+                                echo "<button disabled class='inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-400 text-gray-500 cursor-not-allowed opacity-50'>Already Reserved</button>";
+                                } else {
+                                echo "<form method='POST' action='reserve.php' class='inline'>
+                                        <input type='hidden' name='room_id' value='" . $room_id . "'> 
+                                        <input type='hidden' name='idno' value='" . $userID . "'> 
+                                        <button type='submit' class='inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-green-600 hover:text-green-800 focus:outline-none focus:text-green-800'>
+                                                Reserve
+                                        </button>
+                                        </form>";
+                                }
+                                
+                                echo "</td>";
                                 echo "</tr>";
-                            }
+
+                                $stmt->close();
+                        }
                         } else {
-                            echo "<tr><td colspan='5' class='p-3 whitespace-nowrap text-sm text-gray-800'>No records found</td></tr>";
+                        echo "<tr><td colspan='5' class='p-3 whitespace-nowrap text-sm text-gray-800'>No records found</td></tr>";
                         }
 
-                        mysqli_close($conn); // Close the database connection
+                        mysqli_close($conn);
                         ?>
+
+
+
                     </tbody>
                 </table>
             </div>
@@ -105,17 +147,5 @@ include "layout.php";
         </button>
     </div>
 </div>
-
-<script>
-    window.addEventListener('load', () => {
-        // Your other JavaScript code here
-
-        const inputs = document.querySelectorAll('.dt-container thead input');
-
-        inputs.forEach((input) => {
-            input.addEventListener('keydown', function (evt) {
-                if ((evt.metaKey || evt.ctrlKey) && evt.key === 'a') this.select();
-            });
-        });
-    });
-</script>
+</div>
+</div>  
