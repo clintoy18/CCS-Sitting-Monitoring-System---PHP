@@ -61,13 +61,41 @@ Student Information</h1>
     Announcement
 </h1>
 
+   <?php 
+
+   //FETCH ANNOUNCEMENT CREATED BY ADMIN
+    
+    // $sql = "SELECT * FROM announcements";
+    // $result = $conn->query($sql);
+    
+    // // Check if there are any announcements
+    // if ($result->num_rows > 0) {
+    //     // Loop through the announcements and display them
+    //     while ($row = $result->fetch_assoc()) {
+    //         // Get data from the row
+    //         $announcement_id = $row['announcement_id'];
+    //         $admin_id = $row['admin_id'];
+    //         $title = $row['title'];
+    //         $content = $row['content'];
+    //         $date_created = $row['date_created'];
+    
+    //         // Display announcement (you can customize HTML structure as needed)
+    //         echo "<div class='announcement'>";
+    //         echo "<h3>$title</h3>";
+    //         echo "<p><strong>Posted on:</strong> " . date("F j, Y, g:i a", strtotime($date_created)) . "</p>";
+    //         echo "<p>$content</p>";
+    //         echo "</div>";
+    //     }
+    // } else {
+    //     echo "No announcements found.";
+    // }
+    // ?>
+    
+   
     <!-- Dropdown Content (Scroll and hide excess content) -->
     <div id="dropdown-content" class="w-full bg-white shadow-lg rounded-lg border border-gray-300 p-8 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white max-h-130 overflow-y-auto transition-all duration-300 ease-in-out">
     
         <!-- Announcement Header -->
-     
-
-   
         <!-- Announcement Title -->
         <p class="text-xl font-semibold text-gray-800 dark:text-white mb-4">ANNOUNCEMENTS</p>
         <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">To ensure a smooth experience, please pay attention to the following important updates:</p>
