@@ -21,7 +21,8 @@ if (isset($_POST["submit"])) {
     $yearlevel = mysqli_real_escape_string($conn, $_POST["yearlevel"]);
     $address = mysqli_real_escape_string($conn, $_POST["address"]);
 
-    // Handle file upload
+   // Handle file upload
+if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
     $profile_picture = $_FILES['profile_picture']['name'];
     $target_dir = "uploads/";
     $target_file = $target_dir . basename($profile_picture);
@@ -61,7 +62,6 @@ if (isset($_POST["submit"])) {
     // Check if $uploadOk is set to 0 by an error
     if ($uploadOk == 0) {
         echo "<font color='red'>Error: Sorry, your file was not uploaded.</font>";
-        // if everything is ok, try to upload file
     } else {
         if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
             echo "The file " . htmlspecialchars(basename($_FILES["profile_picture"]["name"])) . " has been uploaded.";
@@ -69,6 +69,11 @@ if (isset($_POST["submit"])) {
             echo "<font color='red'>Error: Sorry, there was an error uploading your file.</font>";
         }
     }
+} else {
+    // If no file is uploaded, set $target_file to an empty string (or use the existing image)
+    $target_file = $userData['profile_picture'];  // Keep the previous profile picture if no new file is uploaded
+}
+
 
     // Check if any field is empty
     if ($userID == "" || $fname == "" || $lname == "" || $midname == "" || $course == "" || $yearlevel == "") {

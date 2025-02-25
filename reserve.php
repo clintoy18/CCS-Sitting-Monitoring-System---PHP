@@ -40,7 +40,7 @@ if ($stmt->execute()) {
      $stmt = $conn->prepare($update_capacity);
      $stmt->bind_param("i", $room_id);
      $stmt->execute();
-    echo "Reservation successful!";
+     header('Location: reservation.php');
 } else {
     echo "Error reserving room.";
 }
