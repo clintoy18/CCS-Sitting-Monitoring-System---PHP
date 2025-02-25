@@ -8,7 +8,7 @@ include "auth.php";
 
  <!-- Student Information Card -->
  <div class="rounded-lg border bg-white  border-gray-300 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full animate-slide-up [animation-delay:0.6s]">
-<h1 class="text-center bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 text-white text-xl font-extrabold py-6 px-8 rounded-sm shadow-lg">
+<h1 class="text-center bg-blue-900 text-white text-xl font-extrabold py-6 px-8 rounded-sm shadow-lg">
 Student Information</h1>
           
 
@@ -57,9 +57,10 @@ Student Information</h1>
 
 <!-- Announcement Card -->
 <div class="rounded-lg border bg-white border-gray-300 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full animate-slide-up [animation-delay:0.6s]">
-<h1 class="text-center bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 text-white text-xl font-extrabold py-6 px-8 rounded-sm shadow-lg">
+<h1 class="text-center bg-blue-900 text-white text-xl font-extrabold py-6 px-8 rounded-sm shadow-lg">
     Announcement
 </h1>
+
     <!-- Dropdown Content (Scroll and hide excess content) -->
     <div id="dropdown-content" class="w-full bg-white shadow-lg rounded-lg border border-gray-300 p-8 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white max-h-130 overflow-y-auto transition-all duration-300 ease-in-out">
     
@@ -119,7 +120,7 @@ Student Information</h1>
 
 <!-- Announcement Card -->
 <div class="rounded-lg border bg-white border-gray-300 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col h-full animate-slide-up [animation-delay:0.6s]">
-<h1 class="text-center bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700 text-white text-xl font-extrabold py-6 px-8 rounded-sm shadow-lg">
+<h1 class="text-center bg-blue-900 text-white text-xl font-extrabold py-6 px-8 rounded-sm shadow-lg">
     Rules and Regulations
 </h1>
     <!-- Dropdown Content (Scroll and hide excess content) -->
