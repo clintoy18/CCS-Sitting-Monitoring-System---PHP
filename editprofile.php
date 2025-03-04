@@ -94,7 +94,7 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 
 ?>
 
 
-<div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg ">
+<div class="max-w-2xl mx-auto bg-white m-6 p-6 rounded-lg shadow-lg ">
     <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Edit Profile</h2>
 
     <form action="editprofile.php" method="post" enctype="multipart/form-data">

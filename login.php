@@ -13,6 +13,24 @@ if (isset($_POST['submit'])) {
     if ($idno == "" || $password == "") {
         $error = "Either ID number or password field is empty.";
     } else {
+        //check if user is in  admin table
+        $admin_result = mysqli_query($conn, "SELECT * FROM admins WHERE admin_id = '$idno'") or die("Could not execute the select query.");
+        $admin_row = mysqli_fetch_assoc($admin_result);
+         
+        //check if user is admin 
+        if ($admin_row) { 
+            if ($admin_row['password'] == $password) {
+
+            $_SESSION['admin_id'] = $admin_row['admin_id'];  
+            $_SESSION['name'] = $admin_row['name'];   
+            $_SESSION['role'] = 'admin'; 
+        
+            header('Location: admindashboard.php');
+            exit();
+            }else{
+                $error = "Invalid  or password";
+            }
+        }else{
         // Password verification 
         $result = mysqli_query($conn, "SELECT * FROM studentinfo WHERE idno = '$idno' AND `password` ='$password'") or die("Could not execute the select query.");
         $row = mysqli_fetch_assoc($result);
@@ -35,6 +53,7 @@ if (isset($_POST['submit'])) {
         } else {
             $error = "Invalid ID or password."; // Set the error message
         }
+      }   
     }
 }
 ?>
