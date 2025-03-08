@@ -60,87 +60,20 @@ Student Information</h1>
 <h1 class="text-center bg-blue-900 text-white text-xl font-extrabold py-6 px-8 rounded-sm shadow-lg">
     Announcement
 </h1>
+<div id="dropdown-content" class="w-full bg-white shadow-lg rounded-lg border border-gray-300 p-8 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white max-h-130 overflow-y-auto transition-all duration-300 ease-in-out">
+<?php
+    // Fetch announcements from the database
+    include "connection.php";
+    $result = mysqli_query($conn, "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
 
-   <?php 
-
-   //FETCH ANNOUNCEMENT CREATED BY ADMIN
-    
-    // $sql = "SELECT * FROM announcements";
-    // $result = $conn->query($sql);
-    
-    // // Check if there are any announcements
-    // if ($result->num_rows > 0) {
-    //     // Loop through the announcements and display them
-    //     while ($row = $result->fetch_assoc()) {
-    //         // Get data from the row
-    //         $announcement_id = $row['announcement_id'];
-    //         $admin_id = $row['admin_id'];
-    //         $title = $row['title'];
-    //         $content = $row['content'];
-    //         $date_created = $row['date_created'];
-    
-    //         // Display announcement (you can customize HTML structure as needed)
-    //         echo "<div class='announcement'>";
-    //         echo "<h3>$title</h3>";
-    //         echo "<p><strong>Posted on:</strong> " . date("F j, Y, g:i a", strtotime($date_created)) . "</p>";
-    //         echo "<p>$content</p>";
-    //         echo "</div>";
-    //     }
-    // } else {
-    //     echo "No announcements found.";
-    // }
-    // ?>
-    
-   
-    <!-- Dropdown Content (Scroll and hide excess content) -->
-    <div id="dropdown-content" class="w-full bg-white shadow-lg rounded-lg border border-gray-300 p-8 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white max-h-130 overflow-y-auto transition-all duration-300 ease-in-out">
-    
-        <!-- Announcement Header -->
-        <!-- Announcement Title -->
-        <p class="text-xl font-semibold text-gray-800 dark:text-white mb-4">ANNOUNCEMENTS</p>
-        <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">To ensure a smooth experience, please pay attention to the following important updates:</p>
-        
-        <!-- Announcement Section 1 -->
-        <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
-                <span class="font-bold text-gray-800 dark:text-white">CCS Admin |</span>  <span class="text-gray-500 dark:text-gray-300">2025-Feb-25</span>
-            </h3>
-            <p class="text-md text-gray-600 dark:text-gray-300 mt-2">There will be a scheduled system maintenance on March 1, 2025, from 2:00 PM to 5:00 PM. Please save your work accordingly.</p>
-        </div>
-
-        <!-- Divider between Announcements -->
-        <div class="border-t border-gray-300 my-6"></div>
-
-        <!-- Announcement Section 2 -->
-        <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
-                <span class="font-bold text-gray-800 dark:text-white">CCS Admin |</span> <span class="text-gray-500 dark:text-gray-300">2025-Feb-25</span>
-            </h3>
-            <p class="text-md text-gray-600 dark:text-gray-300 mt-2">The new semester's schedule is now available on the student portal. Please check it to avoid any conflicts.</p>
-        </div>
-
-        <!-- Divider between Announcements -->
-        <div class="border-t border-gray-300 my-6"></div>
-
-        <!-- Announcement Section 3 -->
-        <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
-                <span class="font-bold text-gray-800 dark:text-white">CCS Admin |</span> <span class="text-gray-500 dark:text-gray-300">2025-Feb-25</span>
-            </h3>
-            <p class="text-md text-gray-600 dark:text-gray-300 mt-2">Reminder: The library is now open during weekends from 8 AM to 4 PM for all students and staff.</p>
-        </div>
-
-        <!-- Divider between Announcements -->
-        <div class="border-t border-gray-300 my-6"></div>
-
-        <!-- Announcement Section 4 -->
-        <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
-                <span class="font-bold text-gray-800 dark:text-white">CCS Admin |</span> <span class="text-gray-500 dark:text-gray-300">2025-Feb-25</span>
-            </h3>
-            <p class="text-md text-gray-600 dark:text-gray-300 mt-2">New health protocols are being implemented for the upcoming semester. Check the official communication channels for updates.</p>
-        </div>
-
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<div class='p-4 bg-gray-100 border-l-4 border-blue-600 '>
+                <h3 class='font-bold text-gray-600 p-2 '>📢 CCS-ADMIN</h3>
+                <p class='font-semibold pt-2'>" . (!empty($row['content']) ? htmlspecialchars($row['content']) : "No announcement available") . "</p>
+                <p class='text-sm text-gray-400 pt-2'>Posted on " . date('F d, Y', strtotime($row['created_at'])) . "</p>
+              </div>";
+    }
+      ?>
     </div>
 </div>
 
