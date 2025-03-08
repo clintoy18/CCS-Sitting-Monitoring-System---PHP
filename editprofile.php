@@ -71,7 +71,7 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 
     }
 } else {
     // If no file is uploaded, set $target_file to an empty string (or use the existing image)
-    $target_file = $userData['profile_picture'];  // Keep the previous profile picture if no new file is uploaded
+    $target_file = $userData['profile_picture'];  
 }
 
 
@@ -102,11 +102,11 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 
         <div class="mb-4 justify-items-center">
             <label for="profile_picture" class="block text-gray-700 font-medium mb-2">Profile Picture</label>
             <?php if (!empty($userData['profile_picture'])): ?>
-                <img src="<?php echo $userData['profile_picture']; ?>"
-                    alt="Profile Picture"
-                    class="w-32 h-32 md:w-64 md:h-64 rounded-full border-4 border-gray-300 object-cover aspect-square mx-auto">
+         <img src="<?php echo !empty($userData['profile_picture']) ? $userData['profile_picture'] : 'uploads/default.jpg'; ?>" 
+                alt="Profile Picture" 
+                class="w-32 h-32 md:w-64 md:h-64 rounded-full border-4 border-gray-300 object-cover aspect-square mx-auto">
 
-            <?php endif; ?>
+                <?php endif; ?>
             <input type="file" id="profile_picture" name="profile_picture" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
