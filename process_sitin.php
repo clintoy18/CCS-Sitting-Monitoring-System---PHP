@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Fetch student details
-        $stmt = $conn->prepare("SELECT fname, lname, course FROM studentinfo WHERE idno = ?");
+        $stmt = $conn->prepare("SELECT fname, lname, course , 'session' FROM studentinfo WHERE idno = ?");
         $stmt->bind_param("s", $idno);
         $stmt->execute();
         $result = $stmt->get_result();

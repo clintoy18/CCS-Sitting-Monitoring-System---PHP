@@ -44,9 +44,15 @@ if (isset($_POST['search'])) {
                         <option value='C++'>C++</option>
                     </select>
                   </div>";
+                  echo "<div class='mb-4'>
+                  <label class='block text-gray-700 font-bold mb-2'>Session:</label>
+                  <input type='text' value='{$row['session']}' class='border p-2 rounded w-full' readonly>
+                </div>";
 
             echo "<hr class='my-4'>";
+            
         }
+        
 
         echo "<div class='text-center'>
                 <button type='submit' class='bg-blue-500 text-white px-4 py-2 rounded'>Submit</button>
