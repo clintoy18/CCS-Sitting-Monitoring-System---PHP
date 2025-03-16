@@ -32,12 +32,14 @@ include "auth.php";
       <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-black">CCS SIT-IN Monitoring</span>
   </a>
   <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-      <button type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-        <span class="sr-only">Open user menu</span>
-        <?php if (!empty($userData['profile_picture'])): ?>
-                <img src="<?php echo $userData['profile_picture']; ?>" alt="Profile Picture" class="rounded-full w-8 h-8">
-            <?php endif; ?>
-      </button>
+  <button type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+    <span class="sr-only">Open user menu</span>
+    <?php 
+        $profilePicture = !empty($userData['profile_picture']) ? $userData['profile_picture'] : 'uploads/default.jpg'; 
+    ?>
+    <img src="<?php echo $profilePicture; ?>" alt="Profile Picture" class="rounded-full w-8 h-8">
+</button>
+
       <!-- Dropdown menu -->
       <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
         <div class="px-4 py-3">

@@ -68,9 +68,8 @@ include "connection.php";
 
 <div>
   
-<div id="searchModal" tabindex="-1" aria-hidden="true" 
-    class="fixed inset-0 z-50 hidden flex justify-center items-center bg-gray-900 bg-opacity-50">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+<div id='searchModal' class='fixed inset-0 hidden bg-gray-800 bg-opacity-50 flex justify-center items-center'>
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative m-auto">
         <!-- Modal Header -->
         <div class="flex items-center justify-between pb-4 border-b">
             <h3 class="text-lg font-semibold">Search Student</h3>

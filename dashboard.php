@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 include "layout.php";
 include "auth.php";
@@ -13,7 +14,7 @@ Student Information</h1>
           
 
         <div class="flex justify-center mb-6 mt-4">
-            <?php if (!empty($userData['profile_picture'])): ?>
+            <?php if (!empty($userData['profile_picture'])):  ?>
                 <img src="<?php echo $userData['profile_picture']; ?>" 
                     alt="Profile Picture" 
                     class="w-40 h-40 rounded-full border-4 border-blue-500 object-cover transition-all duration-300 hover:scale-110 hover:ring-4 hover:ring-blue-400 aspect-square shadow-md">
