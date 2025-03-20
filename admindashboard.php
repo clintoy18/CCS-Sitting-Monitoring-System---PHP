@@ -5,22 +5,30 @@ include "adminauth.php";
 include "auth.php";
 include "connection.php"; // Database connection
 
-// Fetch total users.
-$userQuery = mysqli_query($conn, "SELECT COUNT(*) AS total_users FROM studentinfo");
-$userData = mysqli_fetch_assoc($userQuery);
-$totalUsers = $userData['total_users'];
+// Fetch number of admins
+$adminQuery = mysqli_query($conn, "SELECT COUNT(*) AS total_admins FROM admins");
+$adminData = mysqli_fetch_assoc($adminQuery);
+$totalAdmins = $adminData['total_admins'];
+
+// Fetch number of students
+$studentQuery = mysqli_query($conn, "SELECT COUNT(*) AS total_students FROM studentinfo");
+$studentData = mysqli_fetch_assoc($studentQuery);
+$totalStudents = $studentData['total_students'];
+
+// If you have another table for guests, you can calculate guests count accordingly
+$totalGuests = 0;  // Placeholder, adjust this query as needed
 
 // Fetch student count per year level
 $yearQuery = mysqli_query($conn, "SELECT year_level, COUNT(*) AS count FROM studentinfo GROUP BY year_level");
-
 $yearLevels = [];
 $studentCounts = [];
-$colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50"]; // Different colors
+$colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50"]; // You can adjust colors as needed
 
 while ($row = mysqli_fetch_assoc($yearQuery)) {
-    $yearLevels[] = "Year " . $row['year_level']; // Example: "Year 1", "Year 2"
+    $yearLevels[] = "Year " . $row['year_level']; // Year 1, Year 2, etc.
     $studentCounts[] = $row['count'];
 }
+
 ?>
 
 <!-- Main Content -->
@@ -32,12 +40,12 @@ while ($row = mysqli_fetch_assoc($yearQuery)) {
             <!-- Total Users -->
             <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 rounded-lg shadow-md text-white">
                 <h2 class="text-xl font-semibold">Total Users </h2>
-                <p class="text-5xl font-bold"><?php echo $totalUsers ?></p>
+                <p class="text-5xl font-bold"><?php echo $totalStudents ?></p>
             </div>
         </div>
 
        
-        <div class="bg-white p-6 rounded-lg shadow-md max-h-full">
+        <div class="bg-white p-6 rounded-lg shadow-md max-h-half    ">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">📊 Reports Overview</h2>
             <canvas id="reportsChart"></canvas>
         </div>
@@ -80,27 +88,28 @@ while ($row = mysqli_fetch_assoc($yearQuery)) {
     <h2 class="text-2xl font-semibold text-gray-800 mb-4">📊 Students per Year Level</h2>
     <canvas id="yearLevelChart"></canvas>
 </div>
-
 <!-- Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     // Reports Chart (Pie)
     const ctxReports = document.getElementById("reportsChart").getContext("2d");
+
     new Chart(ctxReports, {
         type: "pie",
         data: {
-            labels: ["Admins", "Regular Users", "Guests"],
+            labels: ["Admins", "Students", "Guests"],  // These are the categories for the chart
             datasets: [{
                 label: "Users",
-                data: [10, 50, 40], // Static values
-                backgroundColor: ["#4CAF50", "#FF9800", "#03A9F4"],
+                data: [<?php echo $totalAdmins; ?>, <?php echo $totalStudents; ?>, <?php echo $totalGuests; ?>], // Dynamic values
+                backgroundColor: ["#4CAF50", "#FF9800", "#03A9F4"],  // Colors for each segment
             }]
         }
     });
 
     // Year Level Bar Chart
     const ctxYearLevel = document.getElementById("yearLevelChart").getContext("2d");
+
     new Chart(ctxYearLevel, {
         type: "bar",
         data: {
@@ -108,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
             datasets: [{
                 label: "Number of Students",
                 data: <?php echo json_encode($studentCounts); ?>, // Student Count Data
-                backgroundColor: <?php echo json_encode(array_slice($colors, 0, count($yearLevels))); ?>, // Assign different colors
+                backgroundColor: <?php echo json_encode(array_slice($colors, 0, count($yearLevels))); ?>, // Assign different colors based on the number of year levels
                 borderColor: <?php echo json_encode(array_slice($colors, 0, count($yearLevels))); ?>,
                 borderWidth: 1,
                 barThickness: 50 // Adjust the width of bars
