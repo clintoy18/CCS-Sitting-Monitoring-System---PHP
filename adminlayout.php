@@ -91,8 +91,12 @@ include "connection.php";
   </div>
   </div>
 </nav> 
-<div>  
-<div id='searchModal' class='fixed hidden px-150 inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center'>
+
+
+<div>
+  
+<div id="searchModal" tabindex="-1" aria-hidden="true" 
+    class="fixed inset-0 z-50 hidden flex justify-center items-center bg-gray-900 bg-opacity-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <!-- Modal Header -->
         <div class="flex items-center justify-between pb-4 border-b">
