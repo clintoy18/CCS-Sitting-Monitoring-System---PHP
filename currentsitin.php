@@ -6,7 +6,7 @@ include "adminlayout.php"; // Include layout file
 $query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.time_in, si.id AS sitin_id 
                   FROM sit_in_records si
                   JOIN studentinfo s ON si.idno = s.idno
-                  WHERE si.time_out IS NULL"; 
+                  WHERE si.time_out IS NULL "; 
 
 $result_current = $conn->query($query_current);
 
@@ -14,7 +14,8 @@ $result_current = $conn->query($query_current);
 $query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.time_in, si.time_out 
                    FROM sit_in_records si
                    JOIN studentinfo s ON si.idno = s.idno
-                   WHERE si.time_out IS NOT NULL";
+                   WHERE si.time_out IS NOT NULL
+                   ORDER BY time_out DESC";
 
 $result_timedout = $conn->query($query_timedout);
 ?>
