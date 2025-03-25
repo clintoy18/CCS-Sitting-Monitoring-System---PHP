@@ -2,7 +2,6 @@
 session_start();
 include "adminlayout.php";
 include "adminauth.php";
-include "auth.php";
 include "connection.php"; // Database connection
 
 // Fetch number of admins

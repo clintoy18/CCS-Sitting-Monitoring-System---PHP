@@ -1,8 +1,5 @@
 <?php
 include "connection.php";
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -96,7 +93,7 @@ include "connection.php";
 <div>
   
 <div id="searchModal" tabindex="-1" aria-hidden="true" 
-    class="fixed inset-0 z-50 hidden flex justify-center items-center bg-gray-900 bg-opacity-50">
+    class="fixed inset-0 hidden flex px-[600px] bg-gray-900 bg-opacity-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <!-- Modal Header -->
         <div class="flex items-center justify-between pb-4 border-b">
@@ -130,6 +127,7 @@ $(document).ready(function() {
     $("#navSearch").click(function(event) {
         event.preventDefault();
         $("#searchModal").fadeIn();
+        
         return false; // Prevent default anchor behavior
     });
 
@@ -167,6 +165,7 @@ $(document).ready(function() {
         }
     });
 });
+
 
 </script>
 
