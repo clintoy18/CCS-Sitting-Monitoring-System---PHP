@@ -2,6 +2,8 @@
 include "connection.php"; 
 include "adminlayout.php"; // Include layout file
 
+
+
 $result = "SELECT * FROM studentinfo";
 
 $studentresult = $conn->query($result);
@@ -33,11 +35,11 @@ $studentresult = $conn->query($result);
                         <td class="border p-2"><?= htmlspecialchars($row['year_level']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['session']) ?></td>
                         <td class="border p-2">
-                        <button class="px-4 py-2 bg-red-500 text-white rounded timeout-btn" 
-                                data-id="<?= $row['idno'] ?>" 
-                                data-student="<?= $row['idno'] ?>">
-                                Delete
-                            </button>
+                            
+                        <button class="px-4 py-2 bg-red-500 text-white rounded delete-btn" 
+                            onclick="deleteStudent('<?= $row['idno'] ?>')">Delete</button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded reset-btn" 
+                            onclick="resetSession('<?= $row['idno'] ?>')">Reset</button>
                         </td>
              
                     </tr>
@@ -53,4 +55,31 @@ $studentresult = $conn->query($result);
 
 <script>
 
+function resetSession(studentId) {
+    fetch(`reset_session.php?id=${studentId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Session reset successfully!');
+            location.reload(); // Reload the page to see the changes.
+        } else {
+            alert('Error resetting session.');
+        }
+    })
+    .catch(error => console.error('Error:', error)); // Handle network errors.
+}
 
+function deleteStudent(studentId) {
+    fetch(`delete_student.php?id=${studentId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Student deleted successfully!');
+            location.reload(); // Reload the page to see the changes.
+        } else {
+            alert('Error deleting student.');
+        }
+    })
+    .catch(error => console.error('Error:', error)); // Handle network errors.
+}
+</script>
