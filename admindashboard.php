@@ -43,8 +43,12 @@ while ($row = mysqli_fetch_assoc($sitinData)) {
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold mb-4">📊 Sit-in Records per Purpose</h2>
-            <canvas id="sitinPurposeChart" class="w-full" style="height: 250px;"></canvas>
+            <h2 class="text-xl font-semibold mb-4">📊 Sit-in Records</h2>
+            <select id="chartTypeDropdown" class="mb-4 p-2 border rounded-md">
+                <option value="purpose">Per Purpose</option>
+                <option value="laboratory">Per Laboratory</option>
+            </select>
+            <canvas id="sitinChart" class="w-full" style="height: 250px;"></canvas>
         </div>
         <div class="p-6 bg-white rounded-lg shadow-lg">
             <h2 class="text-xl font-semibold mb-4">📢 Announcements</h2>
@@ -81,14 +85,52 @@ while ($row = mysqli_fetch_assoc($sitinData)) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    new Chart(document.getElementById("sitinPurposeChart").getContext("2d"), {
-        type: "pie",
-        data: {
-            labels: <?= json_encode($sitinPurposes) ?>,
-            datasets: [{ data: <?= json_encode($sitinCounts) ?>, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"], borderWidth: 1 }]
-        },
-        options: { responsive: true, plugins: { legend: { position: 'top' } } }
+    const ctx = document.getElementById("sitinChart").getContext("2d");
+    let chart;
+
+    const dataPurpose = {
+        labels: <?= json_encode($sitinPurposes) ?>,
+        datasets: [{
+            data: <?= json_encode($sitinCounts) ?>,
+            backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+            borderWidth: 1
+        }]
+    };
+
+    const dataLaboratory = {
+        labels: ["Lab 1", "Lab 2", "Lab 3"], // Replace with actual lab names
+        datasets: [{
+            data: [10, 20, 15], // Replace with actual lab data
+            backgroundColor: ["#4CAF50", "#FF9800", "#03A9F4"],
+            borderWidth: 1
+        }]
+    };
+
+    const options = {
+        responsive: true,
+        plugins: { legend: { position: 'top' } }
+    };
+
+    function renderChart(data) {
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: "pie",
+            data: data,
+            options: options
+        });
+    }
+
+    document.getElementById("chartTypeDropdown").addEventListener("change", function () {
+        const selected = this.value;
+        if (selected === "purpose") {
+            renderChart(dataPurpose);
+        } else if (selected === "laboratory") {
+            renderChart(dataLaboratory);
+        }
     });
+
+    // Initialize with "Per Purpose" data
+    renderChart(dataPurpose);
 
     new Chart(document.getElementById("usersBarChart").getContext("2d"), {
         type: "bar",
