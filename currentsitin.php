@@ -35,7 +35,7 @@ $result_timedout = $conn->query($query_timedout);
                 <th class="border p-2">Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="text-center">
             <?php if ($result_current->num_rows > 0): ?>
                 <?php while ($row = $result_current->fetch_assoc()): ?>
                     <tr>
@@ -73,7 +73,7 @@ $result_timedout = $conn->query($query_timedout);
                 <th class="border p-2">Time Out</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="text-center">
             <?php if ($result_timedout->num_rows > 0): ?>
                 <?php while ($row = $result_timedout->fetch_assoc()): ?>
                     <tr>
