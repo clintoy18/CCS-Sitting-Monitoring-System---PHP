@@ -2,140 +2,101 @@
 session_start();
 include "adminlayout.php";
 include "adminauth.php";
-include "connection.php"; // Database connection
+include "connection.php";
 
-// Fetch number of admins
-$adminQuery = mysqli_query($conn, "SELECT COUNT(*) AS total_admins FROM admins");
-$adminData = mysqli_fetch_assoc($adminQuery);
-$totalAdmins = $adminData['total_admins'];
+$totalAdmins = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total_admins FROM admins"))['total_admins'];
+$totalStudents = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total_students FROM studentinfo"))['total_students'];
+$totalUsers = $totalAdmins + $totalStudents;
 
-// Fetch number of students
-$studentQuery = mysqli_query($conn, "SELECT COUNT(*) AS total_students FROM studentinfo");
-$studentData = mysqli_fetch_assoc($studentQuery);
-$totalStudents = $studentData['total_students'];
-
-// If you have another table for guests, you can calculate guests count accordingly
-$totalGuests = 0;  // Placeholder, adjust this query as needed
-
-// Fetch student count per year level
-$yearQuery = mysqli_query($conn, "SELECT year_level, COUNT(*) AS count FROM studentinfo GROUP BY year_level");
-$yearLevels = [];
-$studentCounts = [];
-$colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50"]; // You can adjust colors as needed
-
-while ($row = mysqli_fetch_assoc($yearQuery)) {
-    $yearLevels[] = "Year " . $row['year_level']; // Year 1, Year 2, etc.
+$yearData = mysqli_query($conn, "SELECT year_level, COUNT(*) AS count FROM studentinfo GROUP BY year_level");
+$yearLevels = $studentCounts = [];
+while ($row = mysqli_fetch_assoc($yearData)) {
+    $yearLevels[] = "Year " . $row['year_level'];
     $studentCounts[] = $row['count'];
 }
 
+$sitinData = mysqli_query($conn, "SELECT sitin_purpose, COUNT(*) AS count FROM sit_in_records GROUP BY sitin_purpose");
+$sitinPurposes = $sitinCounts = [];
+while ($row = mysqli_fetch_assoc($sitinData)) {
+    $sitinPurposes[] = ucfirst($row['sitin_purpose']);
+    $sitinCounts[] = $row['count'];
+}
 ?>
 
-<!-- Main Content -->
-<div class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-    <div class="space-y-6">
-     
-        <div class="grid grid-cols-1 gap-6">
-            <!-- Total Users -->
-            <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 rounded-lg shadow-md text-white">
-                <h2 class="text-xl font-semibold">Total Users </h2>
-                <p class="text-5xl font-bold"><?php echo $totalStudents ?></p>
+<div class="p-6 bg-gray-100 min-h-screen">
+    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <?php foreach ([
+            ['Total Admins', $totalAdmins, 'fas fa-user-shield', 'text-blue-600'],
+            ['Total Students', $totalStudents, 'fas fa-user-graduate', 'text-green-600'],
+            ['Total Users', $totalUsers, 'fas fa-users', 'text-purple-600']
+        ] as [$title, $count, $icon, $color]): ?>
+        <div class="p-6 bg-white rounded-lg shadow-lg flex items-center">
+            <div class="<?= $color ?> text-4xl mr-4"><i class="<?= $icon ?>"></i></div>
+            <div>
+                <h2 class="text-lg font-semibold"><?= $title ?></h2>
+                <p class="text-3xl font-bold"><?= $count ?></p>
             </div>
         </div>
+        <?php endforeach; ?>
+    </div>
 
-       
-        <div class="bg-white p-6 rounded-lg shadow-md max-h-half    ">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">📊 Reports Overview</h2>
-            <canvas id="reportsChart"></canvas>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="p-6 bg-white rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">📊 Sit-in Records per Purpose</h2>
+            <canvas id="sitinPurposeChart" class="w-full" style="height: 250px;"></canvas>
+        </div>
+        <div class="p-6 bg-white rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">📢 Announcements</h2>
+            <form action="post_announcement.php" method="POST" class="mb-4">
+                <textarea name="announcement" class="w-full p-3 border rounded-md mb-4" placeholder="Type an announcement..." required></textarea>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Post</button>
+            </form>
+            <div class="max-h-[300px] overflow-y-auto pr-2">
+                <ul class="space-y-4">
+                    <?php
+                    $result = mysqli_query($conn, "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        echo '<li class="p-4 bg-gray-50 border-l-4 border-blue-600 rounded-md flex justify-between items-center">';
+                        echo '<div><p class="font-semibold text-blue-700">📢 Announcement</p>';
+                        echo '<p>' . htmlspecialchars($row['content']) . '</p>';
+                        echo '<p class="text-sm text-gray-400">Posted on ' . date('F d, Y h:i A', strtotime($row['created_at'])) . '</p></div>';
+                        echo '<form action="delete_announcement.php" method="POST">';
+                        echo '<input type="hidden" name="delete_id" value="' . $row["announcement_id"] . '">';
+                        echo '<button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700">🗑</button>';
+                        echo '</form></li>';
+                    }
+                    ?>
+                </ul>
+            </div>
         </div>
     </div>
 
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">📢 Announcements</h2>
-
-      
-        <form action="post_announcement.php" method="POST" class="mb-4">
-            <textarea name="announcement" class="w-full p-3 border rounded-md" placeholder="Type an announcement..." required></textarea>
-            <button type="submit" class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">📢 Post</button>
-        </form>
-
-        <div class="max-h-full overflow-y-auto pr-2">
-            <ul class="space-y-4">
-                <?php
-                $result = mysqli_query($conn, "SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5");
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo '<li class="p-4 bg-gray-50 border-l-4 border-blue-600 flex justify-between items-center">';
-                    echo '<div>';
-                    echo '<p class="font-semibold text-blue-700">📢 Announcement</p>';
-                    echo '<p class="text-gray-800">' . htmlspecialchars($row['content']) . '</p>';
-                    echo '<p class="text-sm text-gray-400">Posted on ' . date('F d, Y', strtotime($row['created_at'])) . '</p>';
-                    echo '</div>';
-                    echo '<form action="delete_announcement.php" method="POST">';
-                    echo '<input type="hidden" name="delete_id" value="' . $row["announcement_id"] . '">';
-                    echo '<button type="submit" class="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700">🗑 Delete</button>';
-                    echo '</form>';
-                    echo '</li>';
-                }
-                ?>
-            </ul>
-        </div>
+    <div class="p-6 bg-white rounded-lg shadow-lg">
+        <h2 class="text-xl font-semibold mb-4">📊 Number of Users</h2>
+        <canvas id="usersBarChart" class="w-full" style="height: 250px;"></canvas>
     </div>
 </div>
 
-<!-- Student Year-Level Bar Chart -->
-<div class="mt-6 p-6 bg-white shadow-md rounded-lg">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">📊 Students per Year Level</h2>
-    <canvas id="yearLevelChart"></canvas>
-</div>
-<!-- Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // Reports Chart (Pie)
-    const ctxReports = document.getElementById("reportsChart").getContext("2d");
-
-    new Chart(ctxReports, {
+    new Chart(document.getElementById("sitinPurposeChart").getContext("2d"), {
         type: "pie",
         data: {
-            labels: ["Admins", "Students", "Guests"],  // These are the categories for the chart
-            datasets: [{
-                label: "Users",
-                data: [<?php echo $totalAdmins; ?>, <?php echo $totalStudents; ?>, <?php echo $totalGuests; ?>], // Dynamic values
-                backgroundColor: ["#4CAF50", "#FF9800", "#03A9F4"],  // Colors for each segment
-            }]
-        }
+            labels: <?= json_encode($sitinPurposes) ?>,
+            datasets: [{ data: <?= json_encode($sitinCounts) ?>, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"], borderWidth: 1 }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'top' } } }
     });
 
-    // Year Level Bar Chart
-    const ctxYearLevel = document.getElementById("yearLevelChart").getContext("2d");
-
-    new Chart(ctxYearLevel, {
+    new Chart(document.getElementById("usersBarChart").getContext("2d"), {
         type: "bar",
         data: {
-            labels: <?php echo json_encode($yearLevels); ?>, // Year Level Labels
-            datasets: [{
-                label: "Number of Students",
-                data: <?php echo json_encode($studentCounts); ?>, // Student Count Data
-                backgroundColor: <?php echo json_encode(array_slice($colors, 0, count($yearLevels))); ?>, // Assign different colors based on the number of year levels
-                borderColor: <?php echo json_encode(array_slice($colors, 0, count($yearLevels))); ?>,
-                borderWidth: 1,
-                barThickness: 50 // Adjust the width of bars
-            }]
+            labels: ["Admins", "Students"],
+            datasets: [{ data: [<?= $totalAdmins ?>, <?= $totalStudents ?>], backgroundColor: ["#4CAF50", "#FF9800"], borderWidth: 1 }]
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: "top"
-                }
-            }
-        }
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 });
 </script>
