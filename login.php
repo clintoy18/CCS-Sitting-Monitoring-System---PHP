@@ -1,59 +1,49 @@
 <?php
 session_start();
-include("connection.php"); // Include your DB connection
-// Define error variable
+include("connection.php");
+
 $error = "";
 
 if (isset($_POST['submit'])) {
-  
     $idno = mysqli_real_escape_string($conn, $_POST['idno']);
     $password = mysqli_real_escape_string($conn, $_POST['password']); 
 
-    // Check if ID or password is empty
     if ($idno == "" || $password == "") {
         $error = "Either ID number or password field is empty.";
     } else {
-        //check if user is in  admin table
-        $admin_result = mysqli_query($conn, "SELECT * FROM admins WHERE admin_id = '$idno'") or die("Could not execute the select query.");
+        $admin_result = mysqli_query($conn, "SELECT * FROM admins WHERE admin_id = '$idno'");
         $admin_row = mysqli_fetch_assoc($admin_result);
-         
-        //check if user is admin 
-        if ($admin_row) { 
+
+        if ($admin_row) {
             if ($admin_row['password'] == $password) {
-
-            $_SESSION['admin_id'] = $admin_row['admin_id'];  
-            $_SESSION['name'] = $admin_row['name'];   
-            $_SESSION['role'] = 'admin'; 
-        
-            header('Location: admindashboard.php');
-            exit();
-            }else{
-                $error = "Invalid  or password";
+                $_SESSION['admin_id'] = $admin_row['admin_id'];  
+                $_SESSION['name'] = $admin_row['name'];   
+                $_SESSION['role'] = 'admin'; 
+                header('Location: admindashboard.php');
+                exit();
+            } else {
+                $error = "Invalid ID or password for admin.";
             }
-        }else{
-        // Password verification 
-        $result = mysqli_query($conn, "SELECT * FROM studentinfo WHERE idno = '$idno' AND `password` ='$password'") or die("Could not execute the select query.");
-        $row = mysqli_fetch_assoc($result);
-
-        if ($row) { 
-            // Store only the user ID in the session, not the password
-            $_SESSION['idno'] = $row['idno'];  
-            $_SESSION['lname'] = $row['lname'];   
-            $_SESSION['fname'] = $row['fname'];   
-            $_SESSION['midname'] = $row['midname'];  
-            $_SESSION['course'] = $row['course'];  
-            $_SESSION['year_level'] = $row['year_level'];  
-            $_SESSION['address'] = $row['address'];  
-            $_SESSION['session'] = $row['session'];  
-                
-           
-            // Redirect to dashboard after successful login
-            header('Location: dashboard.php');
-            exit();
         } else {
-            $error = "Invalid ID or password."; // Set the error message
+            $result = mysqli_query($conn, "SELECT * FROM studentinfo WHERE idno = '$idno'");
+            $row = mysqli_fetch_assoc($result);
+
+            if ($row && password_verify($password, $row['password'])) {
+                $_SESSION['idno'] = $row['idno'];  
+                $_SESSION['lname'] = $row['lname'];   
+                $_SESSION['fname'] = $row['fname'];   
+                $_SESSION['midname'] = $row['midname'];  
+                $_SESSION['course'] = $row['course'];  
+                $_SESSION['year_level'] = $row['year_level'];  
+                $_SESSION['address'] = $row['address'] ?? '';  
+                $_SESSION['session'] = $row['session'] ?? '';  
+                
+                header('Location: dashboard.php');
+                exit();
+            } else {
+                $error = "Invalid ID or password.";
+            }
         }
-      }   
     }
 }
 ?>
@@ -62,70 +52,56 @@ if (isset($_POST['submit'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-   
-   <script>
-        setTimeout(function() {
+    <title>Login - CCS Sit-in Monitoring System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        setTimeout(() => {
             const errorMessage = document.getElementById('error-message');
-            if(errorMessage){
+            if (errorMessage) {
                 errorMessage.style.display = 'none';
-            }      
-        }, 2000);
+            }
+        }, 3000);
     </script>
 </head>
-<body>
+<body class="bg-gray-100 dark:bg-gray-900">
+    <div class="min-h-screen flex flex-col justify-center items-center px-4">
+      
 
-<div class="container px-6 py-12 mx-auto">
-    <section class="bg-gray-50 dark:bg-gray-900">
-        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-            
-            <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                    
-                    <!-- Error message display -->
-                    <?php if ($error): ?>
-                        <div id="error-message" class="bg-red-500 text-white p-2 rounded mb-4">
-                            <?php echo $error; ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="flex">
-                        <div class="w-1/2">
-                            <img src="ccslogo.png" alt="" class="" style="height: 100px;">
-                        </div>
-                        <h1 class="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                            CCS SIT-IN MONITORING SYSTEM
-                        </h1>
-                        <div class="w-1/2">
-                            <img src="uclogo.jpg" alt="" class="" style="height: 100px;">
-                        </div>
-                    </div>  
-
-                    <form class="space-y-4 md:space-y-6" action="" method="POST">
-                        <div>
-                            <label for="idno" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ID no.</label>
-                            <input type="text" name="idno" id="idno" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Enter your ID number" required>
-                        </div>
-                        <div>
-                            <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                            <input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-                        </div>
-
-                        <button type="submit" name="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
-                            Login
-                        </button>
-                        
-                        <p class="text-sm font-light text-gray-500 dark:text-gray-400 mt-4">
-                            Don’t have an account yet? <a href="registration.php" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
-                        </p>
-                    </form>
+        <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
+            <?php if ($error): ?>
+                <div id="error-message" class="bg-red-500 text-white text-sm p-2 rounded text-center">
+                    <?php echo $error; ?>
                 </div>
-            </div>
-        </div>
-    </section>
-</div>
+            <?php endif; ?>
 
+            <form action="" method="POST" class="space-y-4">
+            <div class="flex justify-between items-center w-full max-w-2xl mb-6">
+            <img src="ccslogo.png" alt="CCS Logo" class="h-20">
+            <h1 class="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white">
+                CCS SIT-IN MONITORING SYSTEM
+            </h1>
+            <img src="uclogo.jpg" alt="UC Logo" class="h-20">
+        </div>
+                <div>
+                    <label for="idno" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">ID Number</label>
+                    <input type="text" name="idno" id="idno" placeholder="Enter your ID number" class="w-full px-3 py-2 border rounded-lg text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
+                </div>
+
+                <div>
+                    <label for="password" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">Password</label>
+                    <input type="password" name="password" id="password" placeholder="••••••••" class="w-full px-3 py-2 border rounded-lg text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
+                </div>
+
+                <button type="submit" name="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg transition">
+                    Login
+                </button>
+
+                <p class="text-sm text-center text-gray-500 dark:text-gray-400">
+                    Don’t have an account? 
+                    <a href="registration.php" class="text-blue-600 hover:underline dark:text-blue-400">Sign up</a>
+                </p>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
