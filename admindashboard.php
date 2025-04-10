@@ -58,7 +58,7 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Sit-in Chart -->
         <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold mb-4">📊 Sit-in Records</h2>
+            <h2 class="text-xl font-semibold mb-4"> Sit-in Records</h2>
             <select id="chartTypeDropdown" class="mb-4 p-2 border rounded-md">
                 <option value="purpose">Per Purpose</option>
                 <option value="laboratory">Per Laboratory</option>
@@ -70,7 +70,7 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
 
         <!-- Announcements -->
         <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold mb-4">📢 Announcements</h2>
+            <h2 class="text-xl font-semibold mb-4"> Announcements</h2>
             <form action="post_announcement.php" method="POST" class="mb-4">
                 <textarea name="announcement" class="w-full p-3 border rounded-md mb-4" placeholder="Type an announcement..." required></textarea>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Post</button>
@@ -84,7 +84,7 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
                     ?>
                     <li class="p-4 bg-gray-50 border-l-4 border-blue-600 rounded-md flex justify-between items-center">
                         <div>
-                            <p class="font-semibold text-blue-700">📢 Announcement</p>
+                            <p class="font-semibold text-blue-700">Announcement</p>
                             <p><?= htmlspecialchars($row['content'], ENT_QUOTES, 'UTF-8') ?></p>
                             <p class="text-sm text-gray-400">
                                 Posted on <?= date('F d, Y h:i A', strtotime($row['created_at'])) ?>
@@ -103,7 +103,7 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
 
     <!-- Bar Chart -->
     <div class="p-6 bg-white rounded-lg shadow-lg">
-        <h2 class="text-xl font-semibold mb-4">📊 Number of Users</h2>
+        <h2 class="text-xl font-semibold mb-4"> Number of Users</h2>
         <div class="h-[300px]">
             <canvas id="usersBarChart" class="w-full h-full"></canvas>
         </div>
