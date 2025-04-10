@@ -3,7 +3,7 @@ include "connection.php";
 include "adminlayout.php"; // Include layout file
 
 // Fetch students currently sitting in
-$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.time_in, si.id AS sitin_id 
+$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.time_in, si.id AS sitin_id 
                   FROM sit_in_records si
                   JOIN studentinfo s ON si.idno = s.idno
                   WHERE si.time_out IS NULL "; 
@@ -11,7 +11,7 @@ $query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.time_in, si.id A
 $result_current = $conn->query($query_current);
 
 // sitin records
-$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.time_in, si.time_out 
+$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.time_in, si.time_out 
                    FROM sit_in_records si
                    JOIN studentinfo s ON si.idno = s.idno
                    WHERE si.time_out IS NOT NULL
@@ -31,6 +31,7 @@ $result_timedout = $conn->query($query_timedout);
                 <th class="border p-2">Student ID</th>
                 <th class="border p-2">Name</th>
                 <th class="border p-2">Course</th>
+                <th class="border p-2">Laboratory</th>
                 <th class="border p-2">Time In</th>
                 <th class="border p-2">Action</th>
             </tr>
@@ -42,6 +43,7 @@ $result_timedout = $conn->query($query_timedout);
                         <td class="border p-2"><?= htmlspecialchars($row['idno']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['course']) ?></td>
+                        <td class="border p-2"><?= htmlspecialchars($row['lab']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['time_in']) ?></td>
                         <td class="border p-2">
                             <button class="px-4 py-2 bg-red-500 text-white rounded timeout-btn" 
@@ -69,6 +71,7 @@ $result_timedout = $conn->query($query_timedout);
                 <th class="border p-2">Student ID</th>
                 <th class="border p-2">Name</th>
                 <th class="border p-2">Course</th>
+                <th class="border p-2">Laboratory</th>
                 <th class="border p-2">Time In</th>
                 <th class="border p-2">Time Out</th>
             </tr>
@@ -80,6 +83,7 @@ $result_timedout = $conn->query($query_timedout);
                         <td class="border p-2"><?= htmlspecialchars($row['idno']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['course']) ?></td>
+                        <td class="border p-2"><?= htmlspecialchars($row['lab']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['time_in']) ?></td>
                         <td class="border p-2"><?= htmlspecialchars($row['time_out']) ?></td>
                     </tr>

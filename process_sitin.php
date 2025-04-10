@@ -4,9 +4,11 @@ include "connection.php"; // Database connection
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idnos = $_POST['idno'];
     $sitin_purposes = $_POST['sitin_purpose'];
+    $labs = $_POST['lab']; // Rename to $labs to avoid confusion
 
     foreach ($idnos as $index => $idno) {
         $sitin_purpose = $sitin_purposes[$index];
+        $lab_value = $labs[$index]; // Get lab for current student
 
         // Check if student is already sit-in and has not logged out
         $checkStmt = $conn->prepare("SELECT * FROM sit_in_records WHERE idno = ? AND time_out IS NULL");
@@ -20,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Fetch student details
-        $stmt = $conn->prepare("SELECT fname, lname, course , 'session' FROM studentinfo WHERE idno = ?");
+        $stmt = $conn->prepare("SELECT fname, lname, course FROM studentinfo WHERE idno = ?");
         $stmt->bind_param("s", $idno);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -29,13 +31,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $name = $row['fname'] . " " . $row['lname'];
             $course = $row['course'];
 
-            // insert sitin record
-            $insertStmt = $conn->prepare("INSERT INTO sit_in_records (idno, name, course, sitin_purpose, time_in) VALUES (?, ?, ?, ?, NOW())");
-            $insertStmt->bind_param("ssss", $idno, $name, $course, $sitin_purpose);
+            // Insert sit-in record
+            $insertStmt = $conn->prepare("INSERT INTO sit_in_records (idno, name, course, sitin_purpose, lab, time_in) VALUES (?, ?, ?, ?, ?, NOW())");
+            $insertStmt->bind_param("sssss", $idno, $name, $course, $sitin_purpose, $lab_value);
             $insertStmt->execute();
         }
     }
 
-    echo "<script>alert('Sit-in record added successfully!'); window.location.href='admindashboard.php';</script>";
+    echo "<script>alert('Sit-in record(s) added successfully!'); window.location.href='admindashboard.php';</script>";
 }
 ?>

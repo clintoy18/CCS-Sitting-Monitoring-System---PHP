@@ -37,13 +37,36 @@ if (isset($_POST['search'])) {
                   </div>";
 
             echo "<div class='mb-4'>
-                    <label class='block text-gray-700 font-bold mb-2'>Sit-in Purpose:</label>
-                    <select name='sitin_purpose[]' class='border p-2 rounded w-full'>
-                        <option value='Programming'>Programming</option>
-                        <option value='C'>C</option>
-                        <option value='C++'>C++</option>
-                    </select>
-                  </div>";
+                  <label class='block text-gray-700 font-bold mb-2'>Sit-in Purpose:</label>
+                  <select name='sitin_purpose[]' class='border p-2 rounded w-full' required>
+                      <option value='' disabled selected>Select Purpose</option>
+                      <option value='C Programming'>C Programming</option>
+                      <option value='C# Programming'>C# Programming</option>
+                      <option value='Java Programming'>Java Programming</option>
+                      <option value='Php Programming'>PHP Programming</option>
+                      <option value='Database'>Database</option>
+                      <option value='Digital Logic & Design'>Digital Logic & Design</option>
+                      <option value='Embedded Systems & IoT'>Embedded Systems & IoT</option>
+                      <option value='Python Programming'>Python Programming</option>
+                      <option value='Systems Integration and Architecture'>Systems Integration and Architecture</option>
+                      <option value='Computer Application'>Computer Application</option>
+                      <option value='Web Design and Development'>Web Design and Development</option>
+                  </select>
+              </div>";
+              
+            echo "<div class='mb-4'>
+                  <label class='block text-gray-700 font-bold mb-2'>Laboratory:</label>
+                  <select name='lab[]' class='border p-2 rounded w-full'>
+                      <option value='524'>524</option>
+                      <option value='526'>526</option>
+                      <option value='528'>528</option>
+                      <option value='530'>530</option>
+                      <option value='542'>542</option>
+                      <option value='544'>544</option>
+                      <option value='517'>517</option>
+
+                  </select>
+                </div>";
             echo "<div class='mb-4'>
                   <label class='block text-gray-700 font-bold mb-2'>Session:</label>
                   <input type='text' value='{$row['session']}' class='border p-2 rounded w-full' readonly>
