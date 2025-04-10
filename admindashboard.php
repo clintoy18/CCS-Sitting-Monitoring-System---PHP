@@ -38,7 +38,7 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
     <h1 class="text-4xl font-bold mb-8 text-gray-800">Admin Dashboard</h1>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
         <?php foreach ([
             ['Total Admins', $totalAdmins, 'fas fa-user-shield', 'bg-blue-100 text-blue-600'],
             ['Total Students', $totalStudents, 'fas fa-user-graduate', 'bg-green-100 text-green-600'],
