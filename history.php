@@ -102,6 +102,22 @@ $result_timedout = $stmt_timedout->get_result();
             </tbody>
         </table>
     </div>
-
+    <!-- Feedback Section -->
+    <div class="bg-white shadow-md w-full rounded-lg p-6 mt-6">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-700">Submit Feedback</h2>
+        <form action="submit_feedback.php" method="POST">
+            <div class="mb-4">
+                <label for="student_id" class="block text-gray-700 font-medium mb-2">Student ID</label>
+                <input type="text" id="student_id" name="student_id" class="w-full p-3 border rounded-lg" value="<?= htmlspecialchars($user_id) ?>" readonly>
+            </div>
+            <div class="mb-4">
+                <label for="feedback" class="block text-gray-700 font-medium mb-2">Feedback</label>
+                <textarea id="feedback" name="feedback" class="w-full p-3 border rounded-lg" placeholder="Write your feedback here..." required></textarea>
+            </div>
+            <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out">
+                Submit Feedback
+            </button>
+        </form>
+    </div>
 </div>
 

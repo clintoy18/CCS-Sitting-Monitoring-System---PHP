@@ -35,31 +35,31 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
 ?>
 
 <div class="p-6 bg-gray-100 min-h-screen">
-    <h1 class="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <h1 class="text-4xl font-bold mb-8 text-gray-800">Admin Dashboard</h1>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <?php foreach ([
-            ['Total Admins', $totalAdmins, 'fas fa-user-shield', 'text-blue-600'],
-            ['Total Students', $totalStudents, 'fas fa-user-graduate', 'text-green-600'],
-            ['Total Users', $totalUsers, 'fas fa-users', 'text-purple-600']
+            ['Total Admins', $totalAdmins, 'fas fa-user-shield', 'bg-blue-100 text-blue-600'],
+            ['Total Students', $totalStudents, 'fas fa-user-graduate', 'bg-green-100 text-green-600'],
+            ['Total Users', $totalUsers, 'fas fa-users', 'bg-purple-100 text-purple-600']
         ] as [$title, $count, $icon, $color]): ?>
-        <div class="p-6 bg-white rounded-lg shadow-lg flex items-center">
-            <div class="<?= $color ?> text-4xl mr-4"><i class="<?= $icon ?>"></i></div>
+        <div class="p-6 <?= $color ?> rounded-lg shadow-lg flex items-center space-x-4">
+            <div class="text-5xl"><i class="<?= $icon ?>"></i></div>
             <div>
                 <h2 class="text-lg font-semibold"><?= htmlspecialchars($title) ?></h2>
-                <p class="text-3xl font-bold"><?= htmlspecialchars($count) ?></p>
+                <p class="text-4xl font-bold"><?= htmlspecialchars($count) ?></p>
             </div>
         </div>
         <?php endforeach; ?>
     </div>
 
     <!-- Charts & Announcements -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Sit-in Chart -->
         <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold mb-4"> Sit-in Records</h2>
-            <select id="chartTypeDropdown" class="mb-4 p-2 border rounded-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Sit-in Records</h2>
+            <select id="chartTypeDropdown" class="mb-4 p-2 border rounded-md w-full">
                 <option value="purpose">Per Purpose</option>
                 <option value="laboratory">Per Laboratory</option>
             </select>
@@ -70,10 +70,10 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
 
         <!-- Announcements -->
         <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold mb-4"> Announcements</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Announcements</h2>
             <form action="post_announcement.php" method="POST" class="mb-4">
                 <textarea name="announcement" class="w-full p-3 border rounded-md mb-4" placeholder="Type an announcement..." required></textarea>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Post</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Post</button>
             </form>
             <div class="max-h-[300px] overflow-y-auto pr-2">
                 <ul class="space-y-4">
@@ -102,11 +102,61 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
     </div>
 
     <!-- Bar Chart -->
-    <div class="p-6 bg-white rounded-lg shadow-lg">
-        <h2 class="text-xl font-semibold mb-4"> Number of Users</h2>
+    <div class="p-6 bg-white rounded-lg shadow-lg mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Number of Users</h2>
         <div class="h-[300px]">
             <canvas id="usersBarChart" class="w-full h-full"></canvas>
         </div>
+    </div>
+
+    <!-- Student Feedbacks -->
+    <div class="p-6 bg-white shadow-md w-full rounded-lg">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Student Feedbacks</h2>
+        <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="border p-3 text-left">Name & Profile</th>
+                    <th class="border p-3 text-left">Feedback</th>
+                    <th class="border p-3 text-left">Submitted At</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                <?php
+                // Fetch feedbacks with student details
+                $feedbackQuery = "SELECT f.feedback, f.created_at, 
+                                         s.fname, s.lname, s.profile_picture 
+                                  FROM feedbacks f
+                                  JOIN studentinfo s ON f.student_id = s.idno
+                                  ORDER BY f.created_at DESC";
+                $feedbackResult = mysqli_query($conn, $feedbackQuery);
+
+                if ($feedbackResult && mysqli_num_rows($feedbackResult) > 0):
+                    while ($feedback = mysqli_fetch_assoc($feedbackResult)):
+                ?>
+                    <tr>
+                        <td class="border p-3 flex items-center space-x-4">
+                            <?php if (!empty($feedback['profile_picture'])): ?>
+                                <img src="<?= htmlspecialchars($feedback['profile_picture']) ?>" alt="Profile Picture" class="w-12 h-12 rounded-full">
+                            <?php else: ?>
+                                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-200">
+                                    <span class="text-gray-500">No Image</span>
+                                </div>
+                            <?php endif; ?>
+                            <span class="text-gray-800 font-medium"><?= htmlspecialchars($feedback['fname'] . " " . $feedback['lname']) ?></span>
+                        </td>
+                        <td class="border p-3"><?= htmlspecialchars($feedback['feedback']) ?></td>
+                        <td class="border p-3"><?= htmlspecialchars($feedback['created_at']) ?></td>
+                    </tr>
+                <?php
+                    endwhile;
+                else:
+                ?>
+                    <tr>
+                        <td colspan="3" class="text-center p-4 text-gray-500">No feedbacks available</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
