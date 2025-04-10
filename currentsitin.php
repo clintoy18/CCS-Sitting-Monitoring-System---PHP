@@ -70,24 +70,24 @@ $result_timedout = $conn->query($query_timedout);
         <h2 class="text-2xl font-semibold mb-6 text-gray-700">Timed-Out Sit-In Records</h2>
 
         <!-- Buttons for file generation -->
-        <div class="text-right mt-6 space-x-4">
+        <div class="flex justify-end space-x-4 mb-6">
             <!-- PDF Button with icon -->
-            <button id="generate-pdf" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out flex items-center justify-center space-x-2">
-                <i class="fas fa-file-pdf"></i> <span> PDF</span>
+            <button id="generate-pdf" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out flex items-center space-x-2">
+                <i class="fas fa-file-pdf"></i> <span>PDF</span>
             </button>
             
             <!-- CSV Button with icon -->
-            <button id="generate-csv" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 ease-in-out flex items-center justify-center space-x-2">
-                <i class="fas fa-file-csv"></i> <span> CSV</span>
+            <button id="generate-csv" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 ease-in-out flex items-center space-x-2">
+                <i class="fas fa-file-csv"></i> <span>CSV</span>
             </button>
             
             <!-- DOCX Button with icon -->
-            <button id="generate-docx" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300 ease-in-out flex items-center justify-center space-x-2">
+            <button id="generate-docx" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300 ease-in-out flex items-center space-x-2">
                 <i class="fas fa-file-word"></i> <span>DOCX</span>
             </button>
         </div>
 
-        <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg mt-6">
+        <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg">
             <thead class="bg-gray-200">
                 <tr>
                     <th class="border p-3 text-left">Student ID</th>
