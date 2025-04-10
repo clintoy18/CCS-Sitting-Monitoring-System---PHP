@@ -118,6 +118,3 @@ Student Information</h1>
 
     </div>
 </div>
-
-
-
