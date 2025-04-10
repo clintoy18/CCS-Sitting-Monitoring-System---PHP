@@ -2,6 +2,15 @@
 session_start();
 include("connection.php");
 
+// Redirect logged-in users to their respective dashboards
+if (isset($_SESSION['admin_id'])) {
+    header("Location: admindashboard.php");
+    exit();
+} elseif (isset($_SESSION['idno'])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
 $error = "";
 
 if (isset($_POST['submit'])) {
