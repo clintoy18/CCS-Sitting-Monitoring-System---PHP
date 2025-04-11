@@ -1,5 +1,5 @@
 <?php
-include "connection.php";
+include "../includes/connection.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $student_id = $conn->real_escape_string($_POST['student_id']);

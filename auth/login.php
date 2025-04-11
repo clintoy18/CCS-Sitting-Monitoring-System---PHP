@@ -1,13 +1,13 @@
 <?php
 session_start();
-include("connection.php");
+include "../includes/connection.php"; // Corrected path for connection.php
 
 // Redirect logged-in users to their respective dashboards
 if (isset($_SESSION['admin_id'])) {
-    header("Location: admindashboard.php");
+    header("Location: ../admin/admindashboard.php"); // Corrected path for admin dashboard
     exit();
 } elseif (isset($_SESSION['idno'])) {
-    header("Location: dashboard.php");
+    header("Location: ../student/dashboard.php"); // Corrected path for student dashboard
     exit();
 }
 
@@ -28,7 +28,7 @@ if (isset($_POST['submit'])) {
                 $_SESSION['admin_id'] = $admin_row['admin_id'];  
                 $_SESSION['name'] = $admin_row['name'];   
                 $_SESSION['role'] = 'admin'; 
-                header('Location: admindashboard.php');
+                header('Location: ../admin/admindashboard.php'); // Corrected path for admin dashboard
                 exit();
             } else {
                 $error = "Invalid ID or password for admin.";
@@ -47,7 +47,7 @@ if (isset($_POST['submit'])) {
                 $_SESSION['address'] = $row['address'] ?? '';  
                 $_SESSION['session'] = $row['session'] ?? '';  
                 
-                header('Location: dashboard.php');
+                header('Location: ../student/dashboard.php'); // Corrected path for student dashboard
                 exit();
             } else {
                 $error = "Invalid ID or password.";
@@ -74,8 +74,6 @@ if (isset($_POST['submit'])) {
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
     <div class="min-h-screen flex flex-col justify-center items-center px-4">
-      
-
         <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
             <?php if ($error): ?>
                 <div id="error-message" class="bg-red-500 text-white text-sm p-2 rounded text-center">
@@ -84,13 +82,13 @@ if (isset($_POST['submit'])) {
             <?php endif; ?>
 
             <form action="" method="POST" class="space-y-4">
-            <div class="flex justify-between items-center w-full max-w-2xl mb-6">
-            <img src="ccslogo.png" alt="CCS Logo" class="h-20">
-            <h1 class="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white">
-                CCS SIT-IN MONITORING SYSTEM
-            </h1>
-            <img src="uclogo.jpg" alt="UC Logo" class="h-20">
-        </div>
+                <div class="flex justify-between items-center w-full max-w-2xl mb-6">
+                    <img src="../assets/images/ccslogo.png" alt="CCS Logo" class="h-20">
+                    <h1 class="text-xl md:text-2xl font-bold text-center text-gray-800 dark:text-white">
+                        CCS SIT-IN MONITORING SYSTEM
+                    </h1>
+                    <img src="../assets/images/uclogo.jpg" alt="UC Logo" class="h-20">
+                </div>
                 <div>
                     <label for="idno" class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">ID Number</label>
                     <input type="text" name="idno" id="idno" placeholder="Enter your ID number" class="w-full px-3 py-2 border rounded-lg text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
@@ -107,7 +105,7 @@ if (isset($_POST['submit'])) {
 
                 <p class="text-sm text-center text-gray-500 dark:text-gray-400">
                     Don’t have an account? 
-                    <a href="registration.php" class="text-blue-600 hover:underline dark:text-blue-400">Sign up</a>
+                    <a href="register.php" class="text-blue-600 hover:underline dark:text-blue-400">Sign up</a>
                 </p>
             </form>
         </div>

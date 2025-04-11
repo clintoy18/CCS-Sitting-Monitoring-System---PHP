@@ -1,7 +1,7 @@
 <?php
 session_start();
-include "layout.php"; 
-include "auth.php";
+include "../includes/layout.php"; 
+include "../includes/auth.php";
 ?>
 
 <h1 class="text-3xl font-semibold text-center text-gray-800 p-8 ">Available Rooms</h1>

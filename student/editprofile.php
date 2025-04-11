@@ -2,9 +2,9 @@
 ob_start();
 session_start(); // Start the session to get user data
 
-include "layout.php";
-include "auth.php";
-include "connection.php";
+include "../includes/layout.php"; // Corrected path for layout.php
+include "../includes/auth.php";   // Corrected path for auth.php
+include "../includes/connection.php"; // Corrected path for connection.php
 
 // Fetch current user data
 $userID = $_SESSION['idno'];
@@ -21,59 +21,55 @@ if (isset($_POST["submit"])) {
     $yearlevel = mysqli_real_escape_string($conn, $_POST["yearlevel"]);
     $address = mysqli_real_escape_string($conn, $_POST["address"]);
 
-   // Handle file upload
-if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
-    $profile_picture = $_FILES['profile_picture']['name'];
-    $target_dir = "uploads/";
-    $target_file = $target_dir . basename($profile_picture);
-    $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-    // Check if image file is a actual image or fake image
-    $check = getimagesize($_FILES["profile_picture"]["tmp_name"]);
-    if ($check !== false) {
+    // Handle file upload
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
+        $profile_picture = $_FILES['profile_picture']['name'];
+        $target_dir = "../assets/uploads/";
+        $target_file = $target_dir . basename($profile_picture);
         $uploadOk = 1;
-    } else {
-        echo "<font color='red'>Error: File is not an image.</font>";
-        $uploadOk = 0;
-    }
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-    // Check if file already exists
-    if (file_exists($target_file)) {
-        echo "<font color='red'>Error: Sorry, file already exists.</font>";
-        $uploadOk = 0;
-    }
-
-    // Check file size
-    if ($_FILES["profile_picture"]["size"] > 500000) {
-        echo "<font color='red'>Error: Sorry, your file is too large.</font>";
-        $uploadOk = 0;
-    }
-
-    // Allow certain file formats
-    if (
-        $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-        && $imageFileType != "gif"
-    ) {
-        echo "<font color='red'>Error: Sorry, only JPG, JPEG, PNG & GIF files are allowed.</font>";
-        $uploadOk = 0;
-    }
-
-    // Check if $uploadOk is set to 0 by an error
-    if ($uploadOk == 0) {
-        echo "<font color='red'>Error: Sorry, your file was not uploaded.</font>";
-    } else {
-        if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
-            echo "The file " . htmlspecialchars(basename($_FILES["profile_picture"]["name"])) . " has been uploaded.";
+        // Check if image file is a valid image
+        $check = getimagesize($_FILES["profile_picture"]["tmp_name"]);
+        if ($check !== false) {
+            $uploadOk = 1;
         } else {
-            echo "<font color='red'>Error: Sorry, there was an error uploading your file.</font>";
+            echo "<font color='red'>Error: File is not an image.</font>";
+            $uploadOk = 0;
         }
-    }
-} else {
-    // If no file is uploaded, set $target_file to an empty string (or use the existing image)
-    $target_file = $userData['profile_picture'];  
-}
 
+        // Check if file already exists
+        if (file_exists($target_file)) {
+            echo "<font color='red'>Error: Sorry, file already exists.</font>";
+            $uploadOk = 0;
+        }
+
+        // Check file size
+        if ($_FILES["profile_picture"]["size"] > 500000) {
+            echo "<font color='red'>Error: Sorry, your file is too large.</font>";
+            $uploadOk = 0;
+        }
+
+        // Allow certain file formats
+        if (!in_array($imageFileType, ["jpg", "jpeg", "png", "gif"])) {
+            echo "<font color='red'>Error: Sorry, only JPG, JPEG, PNG & GIF files are allowed.</font>";
+            $uploadOk = 0;
+        }
+
+        // Check if $uploadOk is set to 0 by an error
+        if ($uploadOk == 0) {
+            echo "<font color='red'>Error: Sorry, your file was not uploaded.</font>";
+        } else {
+            if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
+                echo "The file " . htmlspecialchars(basename($_FILES["profile_picture"]["name"])) . " has been uploaded.";
+            } else {
+                echo "<font color='red'>Error: Sorry, there was an error uploading your file.</font>";
+            }
+        }
+    } else {
+        // If no file is uploaded, retain the existing profile picture
+        $target_file = $userData['profile_picture'];
+    }
 
     // Check if any field is empty
     if ($userID == "" || $fname == "" || $lname == "" || $midname == "" || $course == "" || $yearlevel == "") {
@@ -93,7 +89,7 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 
 }
 ?>
 
-<div class="max-w-2xl mx-auto bg-white m-6 p-6 rounded-lg shadow-lg ">
+<div class="max-w-2xl mx-auto bg-white m-6 p-6 rounded-lg shadow-lg">
     <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Edit Profile</h2>
 
     <form action="editprofile.php" method="post" enctype="multipart/form-data">
@@ -101,11 +97,10 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 
         <div class="mb-4 justify-items-center">
             <label for="profile_picture" class="block text-gray-700 font-medium mb-2">Profile Picture</label>
             <?php if (!empty($userData['profile_picture'])): ?>
-         <img src="<?php echo !empty($userData['profile_picture']) ? $userData['profile_picture'] : 'uploads/default.jpg'; ?>" 
-                alt="Profile Picture" 
-                class="w-32 h-32 md:w-64 md:h-64 rounded-full border-4 border-gray-300 object-cover aspect-square mx-auto">
-
-                <?php endif; ?>
+                <img src="<?php echo !empty($userData['profile_picture']) ? "../uploads/" . $userData['profile_picture'] : '../uploads/default.jpg'; ?>" 
+                     alt="Profile Picture" 
+                     class="w-32 h-32 md:w-64 md:h-64 rounded-full border-4 border-gray-300 object-cover aspect-square mx-auto">
+            <?php endif; ?>
             <input type="file" id="profile_picture" name="profile_picture" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
@@ -113,20 +108,20 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 
             <!-- First Name -->
             <div>
                 <label for="fname" class="block text-gray-700 font-medium mb-2">First Name</label>
-                <input type="text" id="fname" name="firstname" value="<?php echo $userData['fname']; ?>" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your first name">
+                <input type="text" id="fname" name="firstname" value="<?php echo htmlspecialchars($userData['fname']); ?>" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your first name">
             </div>
 
             <!-- Last Name -->
             <div>
                 <label for="lname" class="block text-gray-700 font-medium mb-2">Last Name</label>
-                <input type="text" id="lname" name="lastname" value="<?php echo $userData['lname']; ?>" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your last name">
+                <input type="text" id="lname" name="lastname" value="<?php echo htmlspecialchars($userData['lname']); ?>" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your last name">
             </div>
         </div>
 
-        <!-- Mid Name -->
+        <!-- Middle Name -->
         <div class="mb-4">
             <label for="midname" class="block text-gray-700 font-medium mb-2">Middle Name</label>
-            <input type="text" id="midname" name="midname" value="<?php echo $userData['midname']; ?>" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your middle name">
+            <input type="text" id="midname" name="midname" value="<?php echo htmlspecialchars($userData['midname']); ?>" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your middle name">
         </div>
 
         <!-- Course -->
@@ -151,11 +146,10 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 
             </select>
         </div>
 
-
         <!-- Address -->
         <div class="mb-6">
             <label for="address" class="block text-gray-700 font-medium mb-2">Address</label>
-            <textarea id="address" name="address" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Write something about yourself..."><?php echo $userData['address']; ?></textarea>
+            <textarea id="address" name="address" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Write something about yourself..."><?php echo htmlspecialchars($userData['address']); ?></textarea>
         </div>
 
         <!-- Submit Button -->

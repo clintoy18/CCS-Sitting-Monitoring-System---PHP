@@ -20,30 +20,30 @@ include "auth.php";
       .dt-layout-row:has(.dt-length),
       .dt-layout-row:has(.dt-paging) {
        display: none !important;
-}
-
+      }
     </style>
 </head>
 <body class ="bg-[#D4D9E3] p">   
 <nav class="bg-white border-gray-200 dark:bg-gray-900">
   <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
   <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
-  <img src="ccslogo.png" alt="" class="h-14">
+  <img src="../assets/uploads/ccslogo.png" alt="" class="h-14">
       <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-black">CCS SIT-IN Monitoring</span>
   </a>
   <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
   <button type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
     <span class="sr-only">Open user menu</span>
     <?php 
-        $profilePicture = !empty($userData['profile_picture']) ? $userData['profile_picture'] : 'uploads/default.jpg'; 
+        // Corrected profile picture path
+        $profilePicture = !empty($userData['profile_picture']) ? "../uploads/" . $userData['profile_picture'] : '../uploads/default.jpg'; 
     ?>
-    <img src="<?php echo $profilePicture; ?>" alt="Profile Picture" class="rounded-full w-8 h-8">
+    <img src="<?php echo htmlspecialchars($profilePicture); ?>" alt="Profile Picture" class="rounded-full w-8 h-8">
 </button>
 
       <!-- Dropdown menu -->
       <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
         <div class="px-4 py-3">
-          <span class="block text-sm text-gray-900 dark:text-white">    <?php echo $userData['fname'] . " " . $userData['lname'] ?>
+          <span class="block text-sm text-gray-900 dark:text-white">    <?php echo htmlspecialchars($userData['fname'] . " " . $userData['lname']); ?>
           </span>
           <span class="block text-sm  text-gray-500 truncate dark:text-gray-400"></span>
         </div>
@@ -53,7 +53,7 @@ include "auth.php";
           </li>
           
           <li>
-            <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>
+            <a href="../auth/logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>
           </li>
         </ul>
       </div>
