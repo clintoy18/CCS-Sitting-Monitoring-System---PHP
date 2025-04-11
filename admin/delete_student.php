@@ -1,5 +1,5 @@
 <?php
-include "connection.php"; // Ensure the connection file is included.
+include "../includes/connection.php"; // Ensure the connection file is included.
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];

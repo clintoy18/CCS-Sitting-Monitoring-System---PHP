@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "connection.php"; // Ensure database connection
+include "../includes/connection.php"; // Ensure database connection
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_id'])) {
     $delete_id = intval($_POST['delete_id']); // Securely convert ID to integer
@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_id'])) {
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
 
-        header("Location: admindashboard.php"); // Redirect after delete
+        header("Location: ../admin/admindashboard.php"); // Redirect after delete
         exit();
     } else {
         echo "Error: " . mysqli_error($conn);

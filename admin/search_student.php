@@ -1,5 +1,5 @@
 <?php
-include "connection.php"; // Database connection
+include "../includes/connection.php";  // Database connection
 
 if (isset($_POST['search'])) {
     $search = $_POST['search'];

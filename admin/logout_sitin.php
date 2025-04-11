@@ -1,5 +1,5 @@
 <?php
-include "connection.php";
+include "../includes/connection.php";
 
 if (isset($_POST['sitin_id']) && isset($_POST['student_id'])) {
     $sitin_id = $_POST['sitin_id'];

@@ -2,9 +2,9 @@
 // Start output buffering
 
 // Include the Composer autoloader to load TCPDF
-require_once 'vendor/autoload.php';
+require_once '../vendor/autoload.php';
 
-include "connection.php"; 
+include "../includes/connection.php"; 
 
 // Fetch timed-out sit-in records
 $query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.time_in, si.time_out 

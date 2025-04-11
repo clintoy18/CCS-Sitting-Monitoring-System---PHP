@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "connection.php"; // Ensure this file connects to your database
+include "../includes/connection.php"; // Ensure this file connects to your database
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $announcement = mysqli_real_escape_string($conn, $_POST['announcement']);

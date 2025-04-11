@@ -1,5 +1,5 @@
 <?php
-include "connection.php"; // Ensure this file connects to your database.
+include "../includes/connection.php";  // Ensure this file connects to your database.
 
 $resetQuery = "UPDATE studentinfo SET session = 30"; // Reset session for all students
 $stmt = $conn->prepare($resetQuery); // Prepare the SQL statement

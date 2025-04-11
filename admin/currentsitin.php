@@ -1,21 +1,22 @@
 <?php
-include "connection.php"; 
+include "../includes/connection.php"; 
+include "../includes/adminlayout.php"; // Include layout file
 
 // Check if the database connection is successful
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-include "adminlayout.php"; // Include layout file
+
 
 // Fetch current sit-in records
-$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.time_in, si.id AS sitin_id 
+$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.sitin_purpose ,si.time_in, si.id AS sitin_id 
                   FROM sit_in_records si
                   JOIN studentinfo s ON si.idno = s.idno
                   WHERE si.time_out IS NULL"; 
 $result_current = $conn->query($query_current);
 
 // Fetch timed-out sit-in records
-$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.time_in, si.time_out 
+$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.sitin_purpose,si.time_in, si.time_out 
                    FROM sit_in_records si
                    JOIN studentinfo s ON si.idno = s.idno
                    WHERE si.time_out IS NOT NULL
@@ -31,13 +32,13 @@ $result_timedout = $conn->query($query_timedout);
 
         <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg">
             <thead class="bg-gray-200">
-                <tr>
-                    <th class="border p-3 text-left">Student ID</th>
-                    <th class="border p-3 text-left">Name</th>
-                    <th class="border p-3 text-left">Course</th>
-                    <th class="border p-3 text-left">Laboratory</th>
-                    <th class="border p-3 text-left">Time In</th>
-                    <th class="border p-3 text-left">Action</th>
+                <tr class = "text-center">
+                    <th class="border p-3 text-center">Student ID</th>
+                    <th class="border p-3 text-center">Name</th>
+                    <th class="border p-3 text-center">Course</th>
+                    <th class="border p-3 text-center">Laboratory</th>
+                    <th class="border p-3 text-center">Time In</th>
+                    <th class="border p-3 text-center">Action</th>
                 </tr>
             </thead>
             <tbody class="text-center">
@@ -90,12 +91,13 @@ $result_timedout = $conn->query($query_timedout);
         <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg">
             <thead class="bg-gray-200">
                 <tr>
-                    <th class="border p-3 text-left">Student ID</th>
-                    <th class="border p-3 text-left">Name</th>
-                    <th class="border p-3 text-left">Course</th>
-                    <th class="border p-3 text-left">Laboratory</th>
-                    <th class="border p-3 text-left">Time In</th>
-                    <th class="border p-3 text-left">Time Out</th>
+                    <th class="border p-3 text-center">Student ID</th>
+                    <th class="border p-3 text-center">Name</th>
+                    <th class="border p-3 text-center">Course</th>
+                    <th class="border p-3 text-center">Laboratory</th>
+                    <th class="border p-3 text-center">Purpose</th>
+                    <th class="border p-3 text-center">Time In</th>
+                    <th class="border p-3 text-center">Time Out</th>
                 </tr>
             </thead>
             <tbody class="text-center">
@@ -106,6 +108,8 @@ $result_timedout = $conn->query($query_timedout);
                             <td class="border p-3"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['course']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['lab']) ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
+
                             <td class="border p-3"><?= htmlspecialchars($row['time_in']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['time_out']) ?></td>
                         </tr>
