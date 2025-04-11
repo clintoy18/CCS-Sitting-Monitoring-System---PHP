@@ -1,5 +1,5 @@
 <?php 
-include 'connection.php';
+include '../includes/connection.php';
 
 if (isset($_POST["submit"])) {
     // Sanitize user inputs
@@ -53,9 +53,9 @@ if (isset($_POST["submit"])) {
             <div class="space-y-6">
                 <h1 class="text-2xl text-center font-bold text-gray-900 mb-6">Sign Up</h1>
                 <div class="flex justify-between items-center mb-6">
-                    <img src="ccslogo.png" alt="CCS Logo" class="h-16">
+                    <img src="/assets/images/ccslogo.png" alt="CCS Logo" class="h-16">
                     <h1 class="text-md font-bold text-gray-900 text-center">CCS SIT-IN MONITORING SYSTEM</h1>
-                    <img src="uclogo.jpg" alt="UC Logo" class="h-16">
+                    <img src="/assets/images/uclogo.jpg" alt="UC Logo" class="h-16">
                 </div>  
 
                 <form action="registration.php" method="post" class="space-y-4">
