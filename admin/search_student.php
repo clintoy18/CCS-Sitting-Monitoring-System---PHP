@@ -110,13 +110,13 @@ if (isset($_POST['search'])) {
                     .then(computers => {
                         if (computers.length > 0) {
                             let availableCount = 0;
-                            computers.forEach(computer => {
+                            computers.forEach(function(computer) {
                                 const option = document.createElement('option');
                                 option.value = computer.computer_name;
                                 
                                 // Show status in the dropdown
                                 const statusText = computer.status === 'available' ? '(Available)' : '(In Use)';
-                                option.textContent = `${computer.computer_name} ${statusText}`;
+                                option.textContent = computer.computer_name + ' ' + statusText;
                                 
                                 // Disable computers that are not available
                                 if (computer.status !== 'available') {

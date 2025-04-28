@@ -8,14 +8,14 @@ include "../includes/auth.php";
     <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Laboratory Room Reservations</h1>
 
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-semibold text-gray-700">Available Rooms</h2>
-            <div class="text-sm text-gray-600">
-                <span class="font-medium">Sessions Remaining:</span> 
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-3 sm:mb-0">Available Rooms</h2>
+            <div class="bg-gray-50 rounded-full px-4 py-2 flex items-center shadow-sm">
+                <span class="font-medium text-gray-600 mr-2">Sessions Remaining:</span> 
                 <?php
                     include '../includes/connection.php';
                     if (!isset($_SESSION["idno"])) {
-                        echo "<span class='text-red-600'>Please log in to reserve a room</span>";
+                        echo "<span class='text-red-600 font-bold'>Please log in to reserve a room</span>";
                     } else {
                         $userID = $_SESSION["idno"];
                         $check_sessions = "SELECT `session` FROM studentinfo WHERE idno = ?";
@@ -25,14 +25,15 @@ include "../includes/auth.php";
                         $result = $stmt->get_result();
                         $student = $result->fetch_assoc();
                         $remaining_sessions = $student["session"] ?? 0;
-                        echo "<span class='" . ($remaining_sessions > 0 ? "text-green-600" : "text-red-600") . " font-bold'>" . $remaining_sessions . "</span>";
+                        $session_color = $remaining_sessions > 0 ? "text-green-600" : "text-red-600";
+                        echo "<span class='$session_color font-bold text-lg px-2 py-1 rounded-full bg-white shadow-inner'>" . $remaining_sessions . "</span>";
                     }
                 ?>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 rounded-lg">
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-100">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
@@ -85,22 +86,23 @@ include "../includes/auth.php";
                                 $available_computers = $comp_row['available_count'];
 
                                 $status_class = $row["status"] === 'available' ? 'text-green-600' : 'text-red-600';
+                                $hover_class = $row["status"] === 'available' ? 'hover:bg-green-50' : 'hover:bg-red-50';
                                 
-                                echo "<tr class='hover:bg-gray-50'>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'>{$room_id}</td>";
+                                echo "<tr class='$hover_class transition-colors duration-150'>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium bg-gray-100 rounded-full px-3 py-1'>{$room_id}</span></td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap'>Laboratory {$row["room_name"]}</td>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'>{$available_computers} computers</td>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium {$status_class} capitalize'>{$row["status"]}</span></td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium bg-blue-50 text-blue-700 rounded-full px-3 py-1'>{$available_computers}</span> computers</td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium {$status_class} capitalize bg-" . ($row["status"] === 'available' ? 'green' : 'red') . "-50 px-3 py-1 rounded-full'>{$row["status"]}</span></td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap text-center'>";
                                 
                                 if ($remaining_sessions <= 0) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800'>No More Reservations</span>";
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 shadow-sm'>No More Reservations</span>";
                                 } elseif ($row["capacity"] <= 0 || $available_computers <= 0) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800'>Room is Full</span>";
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 shadow-sm'>Room is Full</span>";
                                 } elseif ($isReserved) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-gray-100 text-gray-800'>Already Reserved</span>";
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-gray-100 text-gray-800 shadow-sm'>Already Reserved</span>";
                                 } else {
-                                    echo "<button type='button' onclick='showComputers({$room_id})' class='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'>
+                                    echo "<button type='button' onclick='showComputers({$room_id})' class='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm'>
                                             <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 mr-2' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                                                 <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7' />
                                             </svg>
@@ -126,45 +128,59 @@ include "../includes/auth.php";
     </div>
 </div>
 
-<!-- Computer Selection Modal - Improved UI -->
-<div id="computerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-4xl rounded-lg shadow-xl p-6">
-        <div class="flex justify-between items-center mb-6 border-b pb-4">
-            <h3 class="text-2xl font-bold text-gray-800">Select a Computer</h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+<!-- Improved Computer Selection Modal -->
+<div id="computerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-4xl rounded-lg shadow-2xl p-6 transform transition-all duration-300 scale-95 opacity-0 max-h-[90vh] overflow-y-auto" id="modalContent">
+        <div class="flex justify-between items-center mb-6 border-b pb-4 sticky top-0 bg-white z-10">
+            <h3 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+                Select a Computer
+            </h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
-        <div class="mb-4">
-            <p id="roomInfoText" class="text-gray-600 mb-4">Loading room information...</p>
+        <div class="mb-6">
+            <div class="bg-blue-50 rounded-lg p-4 mb-4 border-l-4 border-blue-500">
+                <p id="roomInfoText" class="text-blue-800 font-medium">Loading room information...</p>
+            </div>
             
-            <!-- Purpose Selection -->
+            <!-- Purpose Selection - Improved UI -->
             <div class="mb-4">
                 <label for="purpose-select" class="block text-sm font-medium text-gray-700 mb-2">Select Purpose:</label>
-                <select id="purpose-select" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                    <option value="C Programming">C Programming</option>
-                    <option value="C# Programming">C# Programming</option>
-                    <option value="Java Programming">Java Programming</option>
-                    <option value="Php Programming">PHP Programming</option>
-                    <option value="Database">Database</option>
-                    <option value="Digital Logic & Design">Digital Logic & Design</option>
-                    <option value="Embedded Systems & IoT">Embedded Systems & IoT</option>
-                    <option value="Python Programming">Python Programming</option>
-                    <option value="Systems Integration and Architecture">Systems Integration and Architecture</option>
-                    <option value="Computer Application">Computer Application</option>
-                    <option value="Web Design and Development">Web Design and Development</option>
-                    <option value="Self-Study">Self-Study</option>
-                    <option value="Project Work">Project Work</option>
-                </select>
+                <div class="relative">
+                    <select id="purpose-select" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm appearance-none">
+                        <option value="C Programming">C Programming</option>
+                        <option value="C# Programming">C# Programming</option>
+                        <option value="Java Programming">Java Programming</option>
+                        <option value="Php Programming">PHP Programming</option>
+                        <option value="Database">Database</option>
+                        <option value="Digital Logic & Design">Digital Logic & Design</option>
+                        <option value="Embedded Systems & IoT">Embedded Systems & IoT</option>
+                        <option value="Python Programming">Python Programming</option>
+                        <option value="Systems Integration and Architecture">Systems Integration and Architecture</option>
+                        <option value="Computer Application">Computer Application</option>
+                        <option value="Web Design and Development">Web Design and Development</option>
+                        <option value="Self-Study">Self-Study</option>
+                        <option value="Project Work">Project Work</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="computersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+        <div id="computersContainer" class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6">
             <!-- Computers will be loaded here via AJAX -->
         </div>
-        <div class="flex justify-end border-t pt-4">
-            <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 mr-2">
+        <div class="flex justify-end border-t pt-4 sticky bottom-0 bg-white z-10">
+            <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 mr-2 transition-colors shadow-sm">
                 Cancel
             </button>
         </div>
@@ -177,13 +193,17 @@ include "../includes/auth.php";
     function showComputers(roomId) {
         currentRoomId = roomId;
         const modal = document.getElementById('computerModal');
+        const modalContent = document.getElementById('modalContent');
         const computersContainer = document.getElementById('computersContainer');
         const roomInfoText = document.getElementById('roomInfoText');
         const purposeSelect = document.getElementById('purpose-select');
         
         // Show modal with animation
         modal.classList.remove('hidden');
-        modal.classList.add('animate-fade-in');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
         
         // Update room info text
         roomInfoText.textContent = `Loading computers for Laboratory Room ${roomId}...`;
@@ -191,11 +211,8 @@ include "../includes/auth.php";
         // Clear previous content and show loading
         computersContainer.innerHTML = `
             <div class="col-span-full flex justify-center items-center p-8">
-                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span class="ml-3 text-gray-600">Loading computers...</span>
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <span class="ml-3 text-gray-600 font-medium">Loading computers...</span>
             </div>
         `;
         
@@ -222,20 +239,27 @@ include "../includes/auth.php";
                 
                 computers.forEach(computer => {
                     const computerCard = document.createElement('div');
-                    computerCard.className = `p-4 border rounded-lg text-center shadow-sm transition-all duration-200 ${computer.status === 'available' ? 'border-green-500 bg-green-50 hover:shadow-md' : 'border-red-500 bg-red-50'}`;
+                    computerCard.className = `p-4 border rounded-lg text-center shadow-sm transition-all duration-200 ${computer.status === 'available' ? 'border-green-500 bg-green-50 hover:shadow-md transform hover:-translate-y-1' : 'border-red-500 bg-red-50'}`;
                     
                     computerCard.innerHTML = `
-                        <div class="mb-3">
-                            <i class="fas fa-desktop text-3xl ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'}"></i>
+                        <div class="flex flex-col items-center">
+                            <div class="mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <p class="font-medium text-gray-800 text-sm sm:text-base">${computer.computer_name}</p>
+                            <span class="text-xs sm:text-sm my-1 ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'} capitalize inline-block px-2 py-1 rounded-full ${computer.status === 'available' ? 'bg-green-100' : 'bg-red-100'}">${computer.status}</span>
+                            ${computer.status === 'available' ? `
+                            <button onclick="reserveComputer(${roomId}, ${computer.computer_id}, '${computer.computer_name}')" 
+                                    class="w-full mt-2 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Reserve
+                            </button>
+                            ` : ''}
                         </div>
-                        <p class="font-medium text-gray-800">${computer.computer_name}</p>
-                        <p class="text-sm ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'} capitalize mb-3">${computer.status}</p>
-                        ${computer.status === 'available' ? `
-                        <button onclick="reserveComputer(${roomId}, ${computer.computer_id}, '${computer.computer_name}')" 
-                                class="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            Reserve
-                        </button>
-                        ` : ''}
                     `;
                     
                     computersContainer.appendChild(computerCard);
@@ -290,12 +314,15 @@ include "../includes/auth.php";
     
     function closeModal() {
         const modal = document.getElementById('computerModal');
-        modal.classList.add('animate-fade-out');
+        const modalContent = document.getElementById('modalContent');
+        
+        // Hide with animation
+        modalContent.classList.add('scale-95', 'opacity-0');
+        modalContent.classList.remove('scale-100', 'opacity-100');
         
         setTimeout(() => {
             modal.classList.add('hidden');
-            modal.classList.remove('animate-fade-in', 'animate-fade-out');
-        }, 200);
+        }, 300);
     }
     
     // Close modal when clicking outside of it
@@ -324,11 +351,7 @@ include "../includes/auth.php";
         to { opacity: 0; }
     }
     
-    .animate-fade-in {
-        animation: fadeIn 0.2s ease-out forwards;
-    }
-    
-    .animate-fade-out {
-        animation: fadeOut 0.2s ease-in forwards;
+    #modalContent {
+        transition: opacity 0.3s ease, transform 0.3s ease;
     }
 </style>  

@@ -128,12 +128,13 @@ try {
         <meta name='viewport' content='width=device-width, initial-scale=1.0'>
         <title>Reservation Successful</title>
         <script src='https://cdn.tailwindcss.com'></script>
+        <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
     </head>
-    <body class='bg-gray-100 min-h-screen flex items-center justify-center p-4'>
-        <div class='bg-white rounded-lg shadow-lg p-8 max-w-md w-full'>
+    <body class='bg-gray-50 min-h-screen flex items-center justify-center p-4'>
+        <div class='bg-white rounded-xl shadow-xl p-8 max-w-md w-full border border-gray-100'>
             <div class='text-center mb-6'>
-                <div class='inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 mb-4'>
-                    <svg class='h-8 w-8' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
+                <div class='inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-4 animate-bounce'>
+                    <svg class='h-10 w-10' fill='none' stroke='currentColor' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
                         <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'></path>
                     </svg>
                 </div>
@@ -141,47 +142,98 @@ try {
                 <p class='text-gray-600'>Your computer has been reserved successfully.</p>
             </div>
             
-            <div class='border-t border-b border-gray-200 py-4 my-4'>
+            <div class='bg-blue-50 rounded-lg border border-blue-100 py-6 px-4 my-6'>
                 <div class='grid grid-cols-2 gap-4'>
-                    <div>
-                        <p class='text-sm text-gray-500 mb-1'>Room</p>
-                        <p class='font-medium'>Laboratory {$room_name}</p>
+                    <div class='border-r border-blue-200 pr-4'>
+                        <p class='text-sm text-blue-500 font-medium mb-1'>Room</p>
+                        <p class='font-medium text-gray-700 flex items-center'>
+                            <i class='fas fa-door-open text-blue-400 mr-2'></i>
+                            Laboratory {$room_name}
+                        </p>
                     </div>
                     <div>
-                        <p class='text-sm text-gray-500 mb-1'>Computer</p>
-                        <p class='font-medium'>{$computer_name}</p>
+                        <p class='text-sm text-blue-500 font-medium mb-1'>Computer</p>
+                        <p class='font-medium text-gray-700 flex items-center'>
+                            <i class='fas fa-desktop text-blue-400 mr-2'></i>
+                            {$computer_name}
+                        </p>
                     </div>
-                    <div>
-                        <p class='text-sm text-gray-500 mb-1'>Purpose</p>
-                        <p class='font-medium'>{$purpose}</p>
+                    <div class='col-span-2 border-t border-blue-200 pt-3 mt-2'>
+                        <p class='text-sm text-blue-500 font-medium mb-1'>Purpose</p>
+                        <p class='font-medium text-gray-700 flex items-center'>
+                            <i class='fas fa-tasks text-blue-400 mr-2'></i>
+                            {$purpose}
+                        </p>
                     </div>
-                    <div>
-                        <p class='text-sm text-gray-500 mb-1'>Start Time</p>
-                        <p class='font-medium'>" . date('h:i A') . "</p>
+                    <div class='flex flex-col'>
+                        <p class='text-sm text-blue-500 font-medium mb-1'>Start Time</p>
+                        <p class='font-medium text-gray-700 flex items-center'>
+                            <i class='far fa-clock text-blue-400 mr-2'></i>
+                            " . date('h:i A') . "
+                        </p>
                     </div>
-                    <div class='col-span-2'>
-                        <p class='text-sm text-gray-500 mb-1'>End Time</p>
-                        <p class='font-medium'>" . date('h:i A', strtotime('+1 hour')) . "</p>
+                    <div class='flex flex-col'>
+                        <p class='text-sm text-blue-500 font-medium mb-1'>End Time</p>
+                        <p class='font-medium text-gray-700 flex items-center'>
+                            <i class='far fa-clock text-blue-400 mr-2'></i>
+                            " . date('h:i A', strtotime('+1 hour')) . "
+                        </p>
                     </div>
                 </div>
             </div>
             
-            <div class='text-center mt-6'>
-                <a href='reservation.php' class='inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'>
+            <div class='flex flex-col items-center mt-6 space-y-3'>
+                <a href='reservation.php' class='w-full inline-flex justify-center items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md'>
+                    <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 mr-2' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 19l-7-7m0 0l7-7m-7 7h18' />
+                    </svg>
                     Return to Reservations
+                </a>
+                
+                <a href='dashboard.php' class='w-full inline-flex justify-center items-center bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 shadow-sm'>
+                    <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5 mr-2' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' />
+                    </svg>
+                    Go to Dashboard
                 </a>
             </div>
             
-            <p class='text-center text-sm text-gray-500 mt-4'>
-                Check your reservation history in your dashboard
-            </p>
+            <div class='flex justify-between items-center mt-6 pt-4 border-t border-gray-100'>
+                <div class='text-sm text-gray-500'>
+                    <span class='font-medium'>Note:</span> Your session expires in 1 hour
+                </div>
+                <div class='flex items-center'>
+                    <div class='w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse'></div>
+                    <span class='text-xs text-green-600 font-medium'>Active</span>
+                </div>
+            </div>
+
+            <div id='countdown' class='w-full bg-gray-200 rounded-full h-2.5 mt-3'>
+                <div id='progress-bar' class='bg-blue-600 h-2.5 rounded-full' style='width: 100%'></div>
+            </div>
         </div>
         
         <script>
+            // Countdown timer animation
+            const totalSeconds = 5;
+            let secondsLeft = totalSeconds;
+            const progressBar = document.getElementById('progress-bar');
+            
+            const interval = setInterval(() => {
+                secondsLeft--;
+                const percentage = (secondsLeft / totalSeconds) * 100;
+                progressBar.style.width = percentage + '%';
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(interval);
+                    window.location.href = 'reservation.php';
+                }
+            }, 1000);
+            
             // Automatically redirect after 5 seconds
             setTimeout(() => {
                 window.location.href = 'reservation.php';
-            }, 5000);
+            }, totalSeconds * 1000);
         </script>
     </body>
     </html>";

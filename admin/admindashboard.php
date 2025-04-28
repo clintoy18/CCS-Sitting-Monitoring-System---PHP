@@ -158,6 +158,18 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
             </tbody>
         </table>
     </div>
+    
+    <!-- Link to update computers -->
+    <div class="mt-8 p-6 bg-white shadow-md rounded-lg">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Computer Management</h2>
+        <p class="mb-4">This tool will standardize all laboratory computers, creating 30 computers (PC-1 to PC-30) in each room.</p>
+        <div class="flex items-center">
+            <a href="update_computers.php" onclick="return confirm('This will delete all existing computer records and recreate them with standardized naming. Continue?')" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                Standardize All Computers
+            </a>
+            <span class="ml-3 text-sm text-gray-600">Use with caution - this will reset all computer data</span>
+        </div>
+    </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
