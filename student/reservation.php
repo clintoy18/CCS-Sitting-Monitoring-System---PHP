@@ -4,83 +4,67 @@ include "../includes/layout.php";
 include "../includes/auth.php";
 ?>
 
-<h1 class="text-3xl font-semibold text-center text-gray-800 p-8 ">Available Rooms</h1>
-<div class="px-8 py-8 grid gap-2" data-hs-datatable='{
-    "pageLength": 10,
-    "pagingOptions": {
-        "pageBtnClasses": "min-w-[40px] flex justify-center items-center text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 py-2.5 text-sm rounded-full disabled:opacity-50 disabled:pointer-events-none"
-    }
-}'>
-    <div class="overflow-x-auto min-h-[520px] bg-white rounded-lg shadow-lg p-4">
-        <div class="min-w-full inline-block align-middle">
-            <div class="overflow-hidden">
-                <table class="min-w-full">
-                    <thead class="border-b border-gray-200">
-                        <tr>
-                            <th scope="col" class="py-1 group text-start font-normal focus:outline-none">
-                                <div class="py-1 px-2.5 inline-flex items-center border border-transparent text-sm text-gray-500 rounded-md hover:border-gray-200">
-                                    Room Number
-                                    <svg class="size-3.5 ms-1 -me-0.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path class="hs-datatable-ordering-desc:text-blue-600" d="m7 15 5 5 5-5"></path>
-                                        <path class="hs-datatable-ordering-asc:text-blue-600" d="m7 9 5-5 5 5"></path>
-                                    </svg>
-                                </div>
-                            </th>
-                            <th scope="col" class="py-1 group text-start font-normal focus:outline-none">
-                                <div class="py-1 px-2.5 inline-flex items-center border border-transparent text-sm text-gray-500 rounded-md hover:border-gray-200">
-                                    Student/User ID
-                                    <svg class="size-3.5 ms-1 -me-0.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path class="hs-datatable-ordering-desc:text-blue-600" d="m7 15 5 5 5-5"></path>
-                                        <path class="hs-datatable-ordering-asc:text-blue-600" d="m7 9 5-5 5 5"></path>
-                                    </svg>
-                                </div>
-                            </th>
-                            <th scope="col" class="py-1 group text-start font-normal focus:outline-none">
-                                <div class="py-1 px-2.5 inline-flex items-center border border-transparent text-sm text-gray-500 rounded-md hover:border-gray-200">
-                                   Room Capacity
-                                    <svg class="size-3.5 ms-1 -me-0.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path class="hs-datatable-ordering-desc:text-blue-600" d="m7 15 5 5 5-5"></path>
-                                        <path class="hs-datatable-ordering-asc:text-blue-600" d="m7 9 5-5 5 5"></path>
-                                    </svg>
-                                </div>
-                            </th>
-                            <th scope="col" class="py-1 group text-start font-normal focus:outline-none">
-                                <div class="py-1 px-2.5 inline-flex items-center border border-transparent text-sm text-gray-500 rounded-md hover:border-gray-200">
-                                    Activity/Status
-                                    <svg class="size-3.5 ms-1 -me-0.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path class="hs-datatable-ordering-desc:text-blue-600" d="m7 15 5 5 5-5"></path>
-                                        <path class="hs-datatable-ordering-asc:text-blue-600" d="m7 9 5-5 5 5"></path>
-                                    </svg>
-                                </div>
-                            </th>
-                            <th scope="col" class="py-2 px-3 text-end font-normal text-center text-sm text-gray-500 --exclude-from-ordering">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                    <?php
-                        include '../includes/connection.php';
-                  
-                        if (!isset($_SESSION["idno"])) {
-                        echo "<tr><td colspan='5' class='p-3 whitespace-nowrap text-sm text-red-600'>Please log in to reserve a room.</td></tr>";
-                        exit;
-                        }
+<div class="px-8 py-6">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Laboratory Room Reservations</h1>
 
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-700">Available Rooms</h2>
+            <div class="text-sm text-gray-600">
+                <span class="font-medium">Sessions Remaining:</span> 
+                <?php
+                    include '../includes/connection.php';
+                    if (!isset($_SESSION["idno"])) {
+                        echo "<span class='text-red-600'>Please log in to reserve a room</span>";
+                    } else {
                         $userID = $_SESSION["idno"];
-
-                        // Fetch student's remaining sessions
                         $check_sessions = "SELECT `session` FROM studentinfo WHERE idno = ?";
                         $stmt = $conn->prepare($check_sessions);
                         $stmt->bind_param("i", $userID);
                         $stmt->execute();
                         $result = $stmt->get_result();
                         $student = $result->fetch_assoc();
-                        $remaining_sessions = $student["session"];
+                        $remaining_sessions = $student["session"] ?? 0;
+                        echo "<span class='" . ($remaining_sessions > 0 ? "text-green-600" : "text-red-600") . " font-bold'>" . $remaining_sessions . "</span>";
+                    }
+                ?>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 rounded-lg">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Room Number
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Room Name
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Available Computers
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <?php
+                    if (!isset($_SESSION["idno"])) {
+                        echo "<tr><td colspan='5' class='p-4 text-center text-red-600 font-medium'>Please log in to reserve a room.</td></tr>";
+                    } else {
+                        $userID = $_SESSION["idno"];
+                        $remaining_sessions = $student["session"] ?? 0;
 
                         $sql = "SELECT * FROM rooms";
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
-                        while ($row = $result->fetch_assoc()) {
+                            while ($row = $result->fetch_assoc()) {
                                 $room_id = $row["room_id"];
 
                                 // Check if user already reserved this room
@@ -91,109 +75,145 @@ include "../includes/auth.php";
                                 $reservation_result = $stmt->get_result();
                                 $isReserved = $reservation_result->num_rows > 0;
 
-                                echo "<tr>";
-                                echo "<td class='p-3 whitespace-nowrap text-sm font-medium text-gray-800'>" . $room_id . "</td>";
-                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["room_name"] . "</td>";
-                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["capacity"] . "</td>";
-                                echo "<td class='p-3 whitespace-nowrap text-sm text-gray-800'>" . $row["status"] . "</td>";
-                                echo "<td class='p-3 whitespace-nowrap text-end text-sm font-medium text-center'>";
+                                // Get available computers count
+                                $check_computers = "SELECT COUNT(*) as available_count FROM computers WHERE room_id = ? AND status = 'available'";
+                                $comp_stmt = $conn->prepare($check_computers);
+                                $comp_stmt->bind_param("i", $room_id);
+                                $comp_stmt->execute();
+                                $comp_result = $comp_stmt->get_result();
+                                $comp_row = $comp_result->fetch_assoc();
+                                $available_computers = $comp_row['available_count'];
+
+                                $status_class = $row["status"] === 'available' ? 'text-green-600' : 'text-red-600';
+                                
+                                echo "<tr class='hover:bg-gray-50'>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'>{$room_id}</td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'>Laboratory {$row["room_name"]}</td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'>{$available_computers} computers</td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium {$status_class} capitalize'>{$row["status"]}</span></td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap text-center'>";
                                 
                                 if ($remaining_sessions <= 0) {
-                                echo "<span class='text-red-600 font-semibold'>No More Reservations Allowed</span>";
-                                } elseif ($row["capacity"] <= 0) {
-                                echo "<span class='text-red-600 font-semibold'>Room is Full</span>";
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800'>No More Reservations</span>";
+                                } elseif ($row["capacity"] <= 0 || $available_computers <= 0) {
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800'>Room is Full</span>";
                                 } elseif ($isReserved) {
-                                echo "<button disabled class='inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-400 text-gray-500 cursor-not-allowed opacity-50'>Already Reserved</button>";
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-gray-100 text-gray-800'>Already Reserved</span>";
                                 } else {
-                                echo "<button type='button' onclick='showComputers(" . $room_id . ")' class='inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 focus:outline-none focus:text-blue-800'>
-                                        View Computers
-                                     </button>";
+                                    echo "<button type='button' onclick='showComputers({$room_id})' class='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'>
+                                            <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 mr-2' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7' />
+                                            </svg>
+                                            Select Computer
+                                        </button>";
                                 }
                                 
                                 echo "</td>";
                                 echo "</tr>";
 
                                 $stmt->close();
-                        }
+                                $comp_stmt->close();
+                            }
                         } else {
-                        echo "<tr><td colspan='5' class='p-3 whitespace-nowrap text-sm text-gray-800'>No records found</td></tr>";
+                            echo "<tr><td colspan='5' class='p-4 text-center text-gray-500'>No laboratory rooms available at this time.</td></tr>";
                         }
-
                         mysqli_close($conn);
-                        ?>
-                    </tbody>
-                </table>
-            </div>
+                    }
+                ?>
+                </tbody>
+            </table>
         </div>
-    </div>
-
-    <div class="flex items-center space-x-1 mt-4 hidden" data-hs-datatable-paging="">
-        <button type="button" class="p-2.5 min-w-[40px] inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-datatable-ping-prev="">
-            <span aria-hidden="true">«</span>
-            <span class="sr-only">Previous</span>
-        </button>
-        <div class="flex items-center space-x-1 [&>.active]:bg-gray-100" data-hs-datatable-paging-pages=""></div>
-        <button type="button" class="p-2.5 min-w-[40px] inline-flex justify-center items-center gap-x-2 text-sm rounded-full text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none" data-hs-datatable-ping-next="">
-            <span class="sr-only">Next</span>
-            <span aria-hidden="true">»</span>
-        </button>
     </div>
 </div>
 
-<!-- Computer Selection Modal -->
-<div id="computerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-3xl rounded-lg shadow-xl p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-gray-800">Select a Computer</h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+<!-- Computer Selection Modal - Improved UI -->
+<div id="computerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-4xl rounded-lg shadow-xl p-6">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h3 class="text-2xl font-bold text-gray-800">Select a Computer</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
         </div>
-        <div id="computersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-4">
+        <div class="mb-4">
+            <p id="roomInfoText" class="text-gray-600 mb-4">Loading room information...</p>
+        </div>
+        <div id="computersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
             <!-- Computers will be loaded here via AJAX -->
+        </div>
+        <div class="flex justify-end border-t pt-4">
+            <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 mr-2">
+                Cancel
+            </button>
         </div>
     </div>
 </div>
 
 <script>
+    let currentRoomId = null;
+    
     function showComputers(roomId) {
+        currentRoomId = roomId;
         const modal = document.getElementById('computerModal');
         const computersContainer = document.getElementById('computersContainer');
+        const roomInfoText = document.getElementById('roomInfoText');
         
-        // Show modal
+        // Show modal with animation
         modal.classList.remove('hidden');
+        modal.classList.add('animate-fade-in');
         
-        // Clear previous content
-        computersContainer.innerHTML = '<div class="col-span-full text-center">Loading computers...</div>';
+        // Update room info text
+        roomInfoText.textContent = `Loading computers for Laboratory Room ${roomId}...`;
+        
+        // Clear previous content and show loading
+        computersContainer.innerHTML = `
+            <div class="col-span-full flex justify-center items-center p-8">
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="ml-3 text-gray-600">Loading computers...</span>
+            </div>
+        `;
         
         // Fetch computers via AJAX
         fetch(`get_computers.php?room_id=${roomId}`)
             .then(response => response.json())
             .then(computers => {
+                // Update room info
+                roomInfoText.textContent = `Select a computer for Laboratory Room ${roomId}`;
+                
                 computersContainer.innerHTML = '';
                 
                 if (computers.length === 0) {
-                    computersContainer.innerHTML = '<div class="col-span-full text-center">No computers available in this room.</div>';
+                    computersContainer.innerHTML = `
+                        <div class="col-span-full text-center p-8">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="mt-2 text-gray-600">No computers available in this room.</p>
+                        </div>
+                    `;
                     return;
                 }
                 
                 computers.forEach(computer => {
                     const computerCard = document.createElement('div');
-                    computerCard.className = `p-4 border rounded-lg text-center ${computer.status === 'available' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`;
+                    computerCard.className = `p-4 border rounded-lg text-center shadow-sm transition-all duration-200 ${computer.status === 'available' ? 'border-green-500 bg-green-50 hover:shadow-md' : 'border-red-500 bg-red-50'}`;
                     
                     computerCard.innerHTML = `
-                        <div class="mb-2">
-                            <i class="fas fa-desktop text-2xl ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'}"></i>
+                        <div class="mb-3">
+                            <i class="fas fa-desktop text-3xl ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'}"></i>
                         </div>
-                        <p class="font-medium">${computer.computer_name}</p>
-                        <p class="text-sm ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'} capitalize">${computer.status}</p>
+                        <p class="font-medium text-gray-800">${computer.computer_name}</p>
+                        <p class="text-sm ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'} capitalize mb-3">${computer.status}</p>
                         ${computer.status === 'available' ? `
-                        <form method="POST" action="reserve.php" class="mt-2">
+                        <form method="POST" action="reserve.php" class="mt-3">
                             <input type="hidden" name="room_id" value="${roomId}">
                             <input type="hidden" name="computer_id" value="${computer.computer_id}">
-                            <button type="submit" class="w-full px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                            <button type="submit" class="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                 Reserve
                             </button>
                         </form>
@@ -205,12 +225,25 @@ include "../includes/auth.php";
             })
             .catch(error => {
                 console.error('Error fetching computers:', error);
-                computersContainer.innerHTML = '<div class="col-span-full text-center text-red-600">Error loading computers. Please try again.</div>';
+                computersContainer.innerHTML = `
+                    <div class="col-span-full text-center p-8">
+                        <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="mt-2 text-red-600">Error loading computers. Please try again.</p>
+                    </div>
+                `;
             });
     }
     
     function closeModal() {
-        document.getElementById('computerModal').classList.add('hidden');
+        const modal = document.getElementById('computerModal');
+        modal.classList.add('animate-fade-out');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('animate-fade-in', 'animate-fade-out');
+        }, 200);
     }
     
     // Close modal when clicking outside of it
@@ -219,6 +252,31 @@ include "../includes/auth.php";
             closeModal();
         }
     });
+
+    // Add keyboard shortcut to close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !document.getElementById('computerModal').classList.contains('hidden')) {
+            closeModal();
+        }
+    });
 </script>
-</div>
-</div>  
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.2s ease-out forwards;
+    }
+    
+    .animate-fade-out {
+        animation: fadeOut 0.2s ease-in forwards;
+    }
+</style>  
