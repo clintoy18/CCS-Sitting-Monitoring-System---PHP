@@ -58,9 +58,8 @@ include "../includes/auth.php";
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                     <?php
-                        include 'connection.php';
+                        include '../includes/connection.php';
                   
-
                         if (!isset($_SESSION["idno"])) {
                         echo "<tr><td colspan='5' class='p-3 whitespace-nowrap text-sm text-red-600'>Please log in to reserve a room.</td></tr>";
                         exit;
@@ -106,13 +105,9 @@ include "../includes/auth.php";
                                 } elseif ($isReserved) {
                                 echo "<button disabled class='inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-gray-400 text-gray-500 cursor-not-allowed opacity-50'>Already Reserved</button>";
                                 } else {
-                                echo "<form method='POST' action='reserve.php' class='inline'>
-                                        <input type='hidden' name='room_id' value='" . $room_id . "'> 
-                                        <input type='hidden' name='idno' value='" . $userID . "'> 
-                                        <button type='submit' class='inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-green-600 hover:text-green-800 focus:outline-none focus:text-green-800'>
-                                                Reserve
-                                        </button>
-                                        </form>";
+                                echo "<button type='button' onclick='showComputers(" . $room_id . ")' class='inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 focus:outline-none focus:text-blue-800'>
+                                        View Computers
+                                     </button>";
                                 }
                                 
                                 echo "</td>";
@@ -126,9 +121,6 @@ include "../includes/auth.php";
 
                         mysqli_close($conn);
                         ?>
-
-
-
                     </tbody>
                 </table>
             </div>
@@ -147,5 +139,86 @@ include "../includes/auth.php";
         </button>
     </div>
 </div>
+
+<!-- Computer Selection Modal -->
+<div id="computerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-3xl rounded-lg shadow-xl p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-800">Select a Computer</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="computersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-4">
+            <!-- Computers will be loaded here via AJAX -->
+        </div>
+    </div>
+</div>
+
+<script>
+    function showComputers(roomId) {
+        const modal = document.getElementById('computerModal');
+        const computersContainer = document.getElementById('computersContainer');
+        
+        // Show modal
+        modal.classList.remove('hidden');
+        
+        // Clear previous content
+        computersContainer.innerHTML = '<div class="col-span-full text-center">Loading computers...</div>';
+        
+        // Fetch computers via AJAX
+        fetch(`get_computers.php?room_id=${roomId}`)
+            .then(response => response.json())
+            .then(computers => {
+                computersContainer.innerHTML = '';
+                
+                if (computers.length === 0) {
+                    computersContainer.innerHTML = '<div class="col-span-full text-center">No computers available in this room.</div>';
+                    return;
+                }
+                
+                computers.forEach(computer => {
+                    const computerCard = document.createElement('div');
+                    computerCard.className = `p-4 border rounded-lg text-center ${computer.status === 'available' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`;
+                    
+                    computerCard.innerHTML = `
+                        <div class="mb-2">
+                            <i class="fas fa-desktop text-2xl ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'}"></i>
+                        </div>
+                        <p class="font-medium">${computer.computer_name}</p>
+                        <p class="text-sm ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'} capitalize">${computer.status}</p>
+                        ${computer.status === 'available' ? `
+                        <form method="POST" action="reserve.php" class="mt-2">
+                            <input type="hidden" name="room_id" value="${roomId}">
+                            <input type="hidden" name="computer_id" value="${computer.computer_id}">
+                            <button type="submit" class="w-full px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                Reserve
+                            </button>
+                        </form>
+                        ` : ''}
+                    `;
+                    
+                    computersContainer.appendChild(computerCard);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching computers:', error);
+                computersContainer.innerHTML = '<div class="col-span-full text-center text-red-600">Error loading computers. Please try again.</div>';
+            });
+    }
+    
+    function closeModal() {
+        document.getElementById('computerModal').classList.add('hidden');
+    }
+    
+    // Close modal when clicking outside of it
+    document.getElementById('computerModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
+</script>
 </div>
 </div>  

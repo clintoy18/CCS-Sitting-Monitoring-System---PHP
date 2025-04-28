@@ -13,7 +13,7 @@ if (!isset($_SESSION['idno'])) {
 $user_id = $_SESSION['idno']; // Get the logged-in user's ID
 
 // Fetch current sit-in records for the logged-in user
-$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.time_in, si.id AS sitin_id 
+$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.computer, si.sitin_purpose, si.time_in, si.id AS sitin_id 
                   FROM sit_in_records si
                   JOIN studentinfo s ON si.idno = s.idno
                   WHERE si.time_out IS NULL AND si.idno = ?"; // Filter by logged-in user
@@ -23,7 +23,7 @@ $stmt_current->execute();
 $result_current = $stmt_current->get_result();
 
 // Fetch timed-out sit-in records for the logged-in user
-$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.time_in, si.time_out 
+$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.computer, si.sitin_purpose, si.time_in, si.time_out 
                    FROM sit_in_records si
                    JOIN studentinfo s ON si.idno = s.idno
                    WHERE si.time_out IS NOT NULL AND si.idno = ? 
@@ -46,6 +46,8 @@ $result_timedout = $stmt_timedout->get_result();
                     <th class="border p-3 text-left">Name</th>
                     <th class="border p-3 text-left">Course</th>
                     <th class="border p-3 text-left">Laboratory</th>
+                    <th class="border p-3 text-left">Computer</th>
+                    <th class="border p-3 text-left">Purpose</th>
                     <th class="border p-3 text-left">Time In</th>
                 </tr>
             </thead>
@@ -57,11 +59,13 @@ $result_timedout = $stmt_timedout->get_result();
                             <td class="border p-3"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['course']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['lab']) ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['time_in']) ?></td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="5" class="text-center p-4 text-gray-500">No active sit-ins</td></tr>
+                    <tr><td colspan="7" class="text-center p-4 text-gray-500">No active sit-ins</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -77,6 +81,8 @@ $result_timedout = $stmt_timedout->get_result();
                     <th class="border p-3 text-left">Name</th>
                     <th class="border p-3 text-left">Course</th>
                     <th class="border p-3 text-left">Laboratory</th>
+                    <th class="border p-3 text-left">Computer</th>
+                    <th class="border p-3 text-left">Purpose</th>
                     <th class="border p-3 text-left">Time In</th>
                     <th class="border p-3 text-left">Time Out</th>
                 </tr>
@@ -89,12 +95,14 @@ $result_timedout = $stmt_timedout->get_result();
                             <td class="border p-3"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['course']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['lab']) ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['time_in']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['time_out']) ?></td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" class="text-center p-4 text-gray-500">No timed-out records</td></tr>
+                    <tr><td colspan="8" class="text-center p-4 text-gray-500">No timed-out records</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

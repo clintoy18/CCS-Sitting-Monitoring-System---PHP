@@ -9,14 +9,14 @@ if ($conn->connect_error) {
 
 
 // Fetch current sit-in records
-$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.sitin_purpose ,si.time_in, si.id AS sitin_id 
+$query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.computer, si.sitin_purpose, si.time_in, si.id AS sitin_id 
                   FROM sit_in_records si
                   JOIN studentinfo s ON si.idno = s.idno
                   WHERE si.time_out IS NULL"; 
 $result_current = $conn->query($query_current);
 
 // Fetch timed-out sit-in records
-$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.sitin_purpose,si.time_in, si.time_out 
+$query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.computer, si.sitin_purpose, si.time_in, si.time_out 
                    FROM sit_in_records si
                    JOIN studentinfo s ON si.idno = s.idno
                    WHERE si.time_out IS NOT NULL
@@ -37,6 +37,8 @@ $result_timedout = $conn->query($query_timedout);
                     <th class="border p-3 text-center">Name</th>
                     <th class="border p-3 text-center">Course</th>
                     <th class="border p-3 text-center">Laboratory</th>
+                    <th class="border p-3 text-center">Computer</th>
+                    <th class="border p-3 text-center">Purpose</th>
                     <th class="border p-3 text-center">Time In</th>
                     <th class="border p-3 text-center">Action</th>
                 </tr>
@@ -49,18 +51,20 @@ $result_timedout = $conn->query($query_timedout);
                             <td class="border p-3"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['course']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['lab']) ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['time_in']) ?></td>
                             <td class="border p-3">
-                                <button class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 ease-in-out flex items-center justify-center space-x-2 timeout-btn"
-                                        data-id="<?= $row['sitin_id'] ?>" 
-                                        data-student="<?= $row['idno'] ?>">
+                                <a href="logout_sitin.php?id=<?= $row['sitin_id'] ?>" 
+                                   onclick="return confirm('Are you sure you want to log out this student?')"
+                                   class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 ease-in-out inline-flex items-center justify-center space-x-1">
                                     <i class="fas fa-sign-out-alt"></i> <span>Timeout</span>
-                                </button>
+                                </a>
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" class="text-center p-4 text-gray-500">No active sit-ins</td></tr>
+                    <tr><td colspan="8" class="text-center p-4 text-gray-500">No active sit-ins</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -95,6 +99,7 @@ $result_timedout = $conn->query($query_timedout);
                     <th class="border p-3 text-center">Name</th>
                     <th class="border p-3 text-center">Course</th>
                     <th class="border p-3 text-center">Laboratory</th>
+                    <th class="border p-3 text-center">Computer</th>
                     <th class="border p-3 text-center">Purpose</th>
                     <th class="border p-3 text-center">Time In</th>
                     <th class="border p-3 text-center">Time Out</th>
@@ -108,14 +113,14 @@ $result_timedout = $conn->query($query_timedout);
                             <td class="border p-3"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['course']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['lab']) ?></td>
+                            <td class="border p-3"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
-
                             <td class="border p-3"><?= htmlspecialchars($row['time_in']) ?></td>
                             <td class="border p-3"><?= htmlspecialchars($row['time_out']) ?></td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" class="text-center p-4 text-gray-500">No timed-out records</td></tr>
+                    <tr><td colspan="8" class="text-center p-4 text-gray-500">No timed-out records</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

@@ -56,7 +56,7 @@ if (isset($_POST['search'])) {
               
             echo "<div class='mb-4'>
                   <label class='block text-gray-700 font-bold mb-2'>Laboratory:</label>
-                  <select name='lab[]' class='border p-2 rounded w-full'>
+                  <select name='lab[]' id='lab-select' class='border p-2 rounded w-full' onchange='loadComputers(this.value)'>
                       <option value='524'>524</option>
                       <option value='526'>526</option>
                       <option value='528'>528</option>
@@ -64,30 +64,89 @@ if (isset($_POST['search'])) {
                       <option value='542'>542</option>
                       <option value='544'>544</option>
                       <option value='517'>517</option>
-
                   </select>
-                </div>";
+              </div>";
+
+            echo "<div class='mb-4'>
+                  <label class='block text-gray-700 font-bold mb-2'>Computer (Optional):</label>
+                  <select name='computer[]' id='computer-select' class='border p-2 rounded w-full'>
+                      <option value=''>-- Select a Computer --</option>
+                  </select>
+              </div>";
+
             echo "<div class='mb-4'>
                   <label class='block text-gray-700 font-bold mb-2'>Session:</label>
                   <input type='text' value='{$row['session']}' class='border p-2 rounded w-full' readonly>
                 </div>";
 
-
             echo "<hr class='my-4'>";
             
         }
         
-
-        echo "<div class='text-center'>
-                <button type='submit' class='bg-blue-500 text-white px-4 py-2 rounded'>Submit</button>
+        echo "<div class='mt-6 flex justify-between'>
+                <button type='button' id='cancelBtn' class='bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600'>Cancel</button>
+                <button type='submit' class='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'>Submit</button>
               </div>";
         echo "</form></div></div>";
+
+        // Add JavaScript for loading computers
+        echo "<script>
+            document.getElementById('cancelBtn').addEventListener('click', function() {
+                document.getElementById('searchModal').style.display = 'none';
+            });
+            
+            function loadComputers(roomId) {
+                const computerSelect = document.getElementById('computer-select');
+                
+                // Clear previous options
+                computerSelect.innerHTML = '<option value=\"\">-- Select a Computer --</option>';
+                
+                // If no room selected, exit
+                if (!roomId) return;
+                
+                // Get computers from the server
+                fetch('get_computers.php?room_id=' + roomId)
+                    .then(response => response.json())
+                    .then(computers => {
+                        if (computers.length > 0) {
+                            computers.forEach(computer => {
+                                const option = document.createElement('option');
+                                option.value = computer.computer_name;
+                                option.textContent = computer.computer_name;
+                                computerSelect.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.value = '';
+                            option.textContent = 'No computers available';
+                            computerSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading computers:', error);
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Error loading computers';
+                        computerSelect.appendChild(option);
+                    });
+            }
+            
+            // Load computers for the default selected lab
+            window.onload = function() {
+                const labSelect = document.getElementById('lab-select');
+                if (labSelect) {
+                    loadComputers(labSelect.value);
+                }
+            };
+        </script>";
     } else {
-        echo "<p class='text-red-500 text-center mt-4'>No students found.</p>";
+        echo "<p class='text-red-500 text-center'>No student found with the provided search term.</p>";
     }
 
     $stmt->close();
     $conn->close();
+} else {
+    echo "<p class='text-red-500 text-center'>Please provide a search term.</p>";
 }
 ?>
 
