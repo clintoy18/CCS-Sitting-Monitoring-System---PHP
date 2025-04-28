@@ -12,6 +12,7 @@ if (!isset($_SESSION["idno"])) {
 $idno = $_SESSION["idno"];
 $room_id = $_POST["room_id"] ?? 0;
 $computer_id = isset($_POST["computer_id"]) ? $_POST["computer_id"] : null;
+$purpose = isset($_POST["purpose"]) ? $_POST["purpose"] : "Self-Service Reservation";
 
 // Check if computer_id is provided
 if (!$computer_id) {
@@ -108,7 +109,7 @@ try {
     
     $name = $student["fname"] . " " . $student["lname"];
     $course = $student["course"];
-    $sitin_purpose = "Self-Service Reservation";
+    $sitin_purpose = $purpose;
     
     $insert_sitin = "INSERT INTO sit_in_records (idno, name, course, sitin_purpose, lab, computer, time_in) 
                     VALUES (?, ?, ?, ?, ?, ?, NOW())";
@@ -151,10 +152,14 @@ try {
                         <p class='font-medium'>{$computer_name}</p>
                     </div>
                     <div>
+                        <p class='text-sm text-gray-500 mb-1'>Purpose</p>
+                        <p class='font-medium'>{$purpose}</p>
+                    </div>
+                    <div>
                         <p class='text-sm text-gray-500 mb-1'>Start Time</p>
                         <p class='font-medium'>" . date('h:i A') . "</p>
                     </div>
-                    <div>
+                    <div class='col-span-2'>
                         <p class='text-sm text-gray-500 mb-1'>End Time</p>
                         <p class='font-medium'>" . date('h:i A', strtotime('+1 hour')) . "</p>
                     </div>

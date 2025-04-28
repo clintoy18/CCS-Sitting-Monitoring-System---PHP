@@ -139,6 +139,26 @@ include "../includes/auth.php";
         </div>
         <div class="mb-4">
             <p id="roomInfoText" class="text-gray-600 mb-4">Loading room information...</p>
+            
+            <!-- Purpose Selection -->
+            <div class="mb-4">
+                <label for="purpose-select" class="block text-sm font-medium text-gray-700 mb-2">Select Purpose:</label>
+                <select id="purpose-select" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    <option value="C Programming">C Programming</option>
+                    <option value="C# Programming">C# Programming</option>
+                    <option value="Java Programming">Java Programming</option>
+                    <option value="Php Programming">PHP Programming</option>
+                    <option value="Database">Database</option>
+                    <option value="Digital Logic & Design">Digital Logic & Design</option>
+                    <option value="Embedded Systems & IoT">Embedded Systems & IoT</option>
+                    <option value="Python Programming">Python Programming</option>
+                    <option value="Systems Integration and Architecture">Systems Integration and Architecture</option>
+                    <option value="Computer Application">Computer Application</option>
+                    <option value="Web Design and Development">Web Design and Development</option>
+                    <option value="Self-Study">Self-Study</option>
+                    <option value="Project Work">Project Work</option>
+                </select>
+            </div>
         </div>
         <div id="computersContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
             <!-- Computers will be loaded here via AJAX -->
@@ -159,6 +179,7 @@ include "../includes/auth.php";
         const modal = document.getElementById('computerModal');
         const computersContainer = document.getElementById('computersContainer');
         const roomInfoText = document.getElementById('roomInfoText');
+        const purposeSelect = document.getElementById('purpose-select');
         
         // Show modal with animation
         modal.classList.remove('hidden');
@@ -210,13 +231,10 @@ include "../includes/auth.php";
                         <p class="font-medium text-gray-800">${computer.computer_name}</p>
                         <p class="text-sm ${computer.status === 'available' ? 'text-green-600' : 'text-red-600'} capitalize mb-3">${computer.status}</p>
                         ${computer.status === 'available' ? `
-                        <form method="POST" action="reserve.php" class="mt-3">
-                            <input type="hidden" name="room_id" value="${roomId}">
-                            <input type="hidden" name="computer_id" value="${computer.computer_id}">
-                            <button type="submit" class="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Reserve
-                            </button>
-                        </form>
+                        <button onclick="reserveComputer(${roomId}, ${computer.computer_id}, '${computer.computer_name}')" 
+                                class="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Reserve
+                        </button>
                         ` : ''}
                     `;
                     
@@ -234,6 +252,40 @@ include "../includes/auth.php";
                     </div>
                 `;
             });
+    }
+    
+    function reserveComputer(roomId, computerId, computerName) {
+        const purpose = document.getElementById('purpose-select').value;
+        
+        // Create and submit a form with the reservation details
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'reserve.php';
+        
+        // Room ID
+        const roomInput = document.createElement('input');
+        roomInput.type = 'hidden';
+        roomInput.name = 'room_id';
+        roomInput.value = roomId;
+        form.appendChild(roomInput);
+        
+        // Computer ID
+        const computerInput = document.createElement('input');
+        computerInput.type = 'hidden';
+        computerInput.name = 'computer_id';
+        computerInput.value = computerId;
+        form.appendChild(computerInput);
+        
+        // Purpose
+        const purposeInput = document.createElement('input');
+        purposeInput.type = 'hidden';
+        purposeInput.name = 'purpose';
+        purposeInput.value = purpose;
+        form.appendChild(purposeInput);
+        
+        // Append form to body and submit
+        document.body.appendChild(form);
+        form.submit();
     }
     
     function closeModal() {

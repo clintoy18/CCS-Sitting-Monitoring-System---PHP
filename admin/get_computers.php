@@ -10,13 +10,13 @@ if ($room_id <= 0) {
     exit;
 }
 
-// Get all computers for the specified room, only available ones
+// Modified query to get ALL computers for the specified room, not just available ones
 $stmt = $conn->prepare("SELECT 
     computer_id, 
     computer_name, 
     status 
 FROM computers 
-WHERE room_id = ? AND status = 'available'
+WHERE room_id = ?
 ORDER BY computer_name");
 
 // Check if prepare statement was successful
@@ -40,7 +40,8 @@ $computers = [];
 while ($row = $result->fetch_assoc()) {
     $computers[] = [
         'computer_id' => $row['computer_id'],
-        'computer_name' => $row['computer_name']
+        'computer_name' => $row['computer_name'],
+        'status' => $row['status']
     ];
 }
 

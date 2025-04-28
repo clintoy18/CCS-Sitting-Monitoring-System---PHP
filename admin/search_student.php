@@ -109,16 +109,37 @@ if (isset($_POST['search'])) {
                     .then(response => response.json())
                     .then(computers => {
                         if (computers.length > 0) {
+                            let availableCount = 0;
                             computers.forEach(computer => {
                                 const option = document.createElement('option');
                                 option.value = computer.computer_name;
-                                option.textContent = computer.computer_name;
+                                
+                                // Show status in the dropdown
+                                const statusText = computer.status === 'available' ? '(Available)' : '(In Use)';
+                                option.textContent = `${computer.computer_name} ${statusText}`;
+                                
+                                // Disable computers that are not available
+                                if (computer.status !== 'available') {
+                                    option.disabled = true;
+                                } else {
+                                    availableCount++;
+                                }
+                                
                                 computerSelect.appendChild(option);
                             });
+                            
+                            if (availableCount === 0) {
+                                const option = document.createElement('option');
+                                option.value = '';
+                                option.textContent = 'No available computers';
+                                option.disabled = true;
+                                computerSelect.appendChild(option);
+                            }
                         } else {
                             const option = document.createElement('option');
                             option.value = '';
-                            option.textContent = 'No computers available';
+                            option.textContent = 'No computers found';
+                            option.disabled = true;
                             computerSelect.appendChild(option);
                         }
                     })
@@ -127,6 +148,7 @@ if (isset($_POST['search'])) {
                         const option = document.createElement('option');
                         option.value = '';
                         option.textContent = 'Error loading computers';
+                        option.disabled = true;
                         computerSelect.appendChild(option);
                     });
             }
