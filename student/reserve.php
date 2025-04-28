@@ -23,6 +23,26 @@ if (!$computer_id) {
     exit;
 }
 
+// Check if student has already made a reservation today
+$today = date('Y-m-d');
+$check_daily_reservation = "SELECT reservation_id 
+                           FROM reservations 
+                           WHERE idno = ? 
+                           AND DATE(start_time) = ? 
+                           AND (status = 'reserved' OR status = 'active')";
+$stmt = $conn->prepare($check_daily_reservation);
+$stmt->bind_param("is", $idno, $today);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result && $result->num_rows > 0) {
+    echo "<script>
+            alert('You have already reserved a computer today. Only one reservation per day is allowed.');
+            window.location.href='reservation.php';
+          </script>";
+    exit;
+}
+
 // Check if student has remaining sessions
 $check_sessions = "SELECT session FROM studentinfo WHERE idno = ?";
 $stmt = $conn->prepare($check_sessions);

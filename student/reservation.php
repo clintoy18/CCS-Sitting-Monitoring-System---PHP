@@ -7,13 +7,62 @@ include "../includes/auth.php";
 <div class="px-8 py-6">
     <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Laboratory Room Reservations</h1>
 
+    <?php
+    // Check if student has already reserved a PC today
+    include '../includes/connection.php';
+    $hasReservationToday = false;
+    $reservationMessage = "";
+    
+    if (isset($_SESSION["idno"])) {
+        $userID = $_SESSION["idno"];
+        $today = date('Y-m-d');
+        
+        // Check if student has made a reservation today
+        $check_daily_reservation = "SELECT r.reservation_id, r.room_id, r.computer_id, c.computer_name, ro.room_name 
+                                  FROM reservations r 
+                                  JOIN computers c ON r.computer_id = c.computer_id 
+                                  JOIN rooms ro ON r.room_id = ro.room_id
+                                  WHERE r.idno = ? 
+                                  AND DATE(r.start_time) = ? 
+                                  AND (r.status = 'reserved' OR r.status = 'active')";
+        $stmt = $conn->prepare($check_daily_reservation);
+        $stmt->bind_param("is", $userID, $today);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result && $result->num_rows > 0) {
+            $hasReservationToday = true;
+            $reservation = $result->fetch_assoc();
+            $reservationMessage = "You have already reserved <strong>PC {$reservation['computer_name']}</strong> in <strong>Laboratory {$reservation['room_name']}</strong> today.";
+        }
+        $stmt->close();
+    }
+    
+    // Display alert if student has a reservation today
+    if ($hasReservationToday) {
+        echo "<div class='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
+                <div class='flex items-center'>
+                    <div class='flex-shrink-0'>
+                        <svg class='h-5 w-5 text-yellow-400' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'>
+                            <path fill-rule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clip-rule='evenodd'/>
+                        </svg>
+                    </div>
+                    <div class='ml-3'>
+                        <p class='text-sm text-yellow-700'>
+                            {$reservationMessage} <span class='font-medium'>Only one reservation per day is allowed.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>";
+    }
+    ?>
+
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
             <h2 class="text-xl font-semibold text-gray-700 mb-3 sm:mb-0">Available Rooms</h2>
             <div class="bg-gray-50 rounded-full px-4 py-2 flex items-center shadow-sm">
                 <span class="font-medium text-gray-600 mr-2">Sessions Remaining:</span> 
                 <?php
-                    include '../includes/connection.php';
                     if (!isset($_SESSION["idno"])) {
                         echo "<span class='text-red-600 font-bold'>Please log in to reserve a room</span>";
                     } else {
@@ -65,7 +114,7 @@ include "../includes/auth.php";
                         $result = $conn->query($sql);
 
                         if ($result->num_rows > 0) {
-                            while ($row = $result->fetch_assoc()) {
+                        while ($row = $result->fetch_assoc()) {
                                 $room_id = $row["room_id"];
 
                                 // Check if user already reserved this room
@@ -95,7 +144,9 @@ include "../includes/auth.php";
                                 echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium {$status_class} capitalize bg-" . ($row["status"] === 'available' ? 'green' : 'red') . "-50 px-3 py-1 rounded-full'>{$row["status"]}</span></td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap text-center'>";
                                 
-                                if ($remaining_sessions <= 0) {
+                                if ($hasReservationToday) {
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-yellow-100 text-yellow-800 shadow-sm'>Daily Limit Reached</span>";
+                                } else if ($remaining_sessions <= 0) {
                                     echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 shadow-sm'>No More Reservations</span>";
                                 } elseif ($row["capacity"] <= 0 || $available_computers <= 0) {
                                     echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 shadow-sm'>Room is Full</span>";
@@ -115,7 +166,7 @@ include "../includes/auth.php";
 
                                 $stmt->close();
                                 $comp_stmt->close();
-                            }
+                        }
                         } else {
                             echo "<tr><td colspan='5' class='p-4 text-center text-gray-500'>No laboratory rooms available at this time.</td></tr>";
                         }
@@ -145,6 +196,16 @@ include "../includes/auth.php";
             </button>
         </div>
         <div class="mb-6">
+            <?php if ($hasReservationToday): ?>
+            <div class="bg-yellow-50 rounded-lg p-4 mb-4 border-l-4 border-yellow-500">
+                <p class="text-yellow-800 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    You have already reserved a computer today. You can only make one reservation per day.
+                </p>
+            </div>
+            <?php endif; ?>
             <div class="bg-blue-50 rounded-lg p-4 mb-4 border-l-4 border-blue-500">
                 <p id="roomInfoText" class="text-blue-800 font-medium">Loading room information...</p>
             </div>
@@ -189,8 +250,15 @@ include "../includes/auth.php";
 
 <script>
     let currentRoomId = null;
+    const hasReservationToday = <?php echo $hasReservationToday ? 'true' : 'false'; ?>;
     
     function showComputers(roomId) {
+        // If student already has a reservation today, show alert and prevent opening the modal
+        if (hasReservationToday) {
+            alert("You have already reserved a computer today. You can only make one reservation per day.");
+            return;
+        }
+        
         currentRoomId = roomId;
         const modal = document.getElementById('computerModal');
         const modalContent = document.getElementById('modalContent');
@@ -279,6 +347,13 @@ include "../includes/auth.php";
     }
     
     function reserveComputer(roomId, computerId, computerName) {
+        // Double-check that the student doesn't have a reservation today
+        if (hasReservationToday) {
+            alert("You have already reserved a computer today. You can only make one reservation per day.");
+            closeModal();
+            return;
+        }
+        
         const purpose = document.getElementById('purpose-select').value;
         
         // Create and submit a form with the reservation details
