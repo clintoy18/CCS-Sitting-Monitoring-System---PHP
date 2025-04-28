@@ -354,4 +354,55 @@ include "../includes/auth.php";
     #modalContent {
         transition: opacity 0.3s ease, transform 0.3s ease;
     }
+
+    /* Add responsive styles for different screen sizes */
+    @media (max-width: 640px) {
+        #modalContent {
+            max-height: 85vh;
+            margin: 0;
+            width: 95%;
+            padding: 1rem;
+        }
+        
+        #computersContainer {
+            gap: 0.5rem;
+        }
+    }
+    
+    /* For extremely small screens */
+    @media (max-width: 480px) {
+        #modalContent {
+            max-height: 90vh;
+            padding: 0.75rem;
+            margin: 0;
+        }
+        
+        #computersContainer {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        
+        #computerModal {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Custom scrollbar for the modal */
+    #modalContent::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    #modalContent::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    #modalContent::-webkit-scrollbar-thumb {
+        background: #cdcdcd;
+        border-radius: 10px;
+    }
+    
+    #modalContent::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
 </style>  

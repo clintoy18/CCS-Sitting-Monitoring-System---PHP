@@ -11,13 +11,15 @@ if ($room_id <= 0) {
 }
 
 // Get all computers for the specified room
+// Using CAST and numerical extraction for proper numerical sorting
 $stmt = $conn->prepare("SELECT 
     computer_id, 
     computer_name, 
     status 
 FROM computers 
 WHERE room_id = ? 
-ORDER BY computer_name");
+ORDER BY 
+    CAST(SUBSTRING_INDEX(computer_name, '-', -1) AS UNSIGNED) ASC");
 
 // Check if prepare statement was successful
 if (!$stmt) {
