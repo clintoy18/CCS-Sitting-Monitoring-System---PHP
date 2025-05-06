@@ -29,7 +29,7 @@ $check_daily_reservation = "SELECT reservation_id
                            FROM reservations 
                            WHERE idno = ? 
                            AND DATE(start_time) = ? 
-                           AND (status = 'reserved' OR status = 'active')";
+                           AND (status = 'approved' OR status = 'active')";
 $stmt = $conn->prepare($check_daily_reservation);
 $stmt->bind_param("is", $idno, $today);
 $stmt->execute();
@@ -92,51 +92,19 @@ $conn->begin_transaction();
 try {
     // Insert reservation
     $insert_reservation = "INSERT INTO reservations (room_id, idno, computer_id, start_time, end_time, status) 
-                          VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 1 HOUR), 'reserved')";
+                          VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 1 HOUR), 'pending')";
     $stmt = $conn->prepare($insert_reservation);
     $stmt->bind_param("iii", $room_id, $idno, $computer_id);
     $stmt->execute();
 
-    // Deduct one session
-    $update_sessions = "UPDATE studentinfo SET `session` = `session` - 1 WHERE idno = ?";
-    $stmt = $conn->prepare($update_sessions);
-    $stmt->bind_param("i", $idno);
-    $stmt->execute();
-    
-    // Deduct 1 from room capacity
-    $update_capacity = "UPDATE rooms SET capacity = capacity - 1 WHERE room_id = ?";
-    $stmt = $conn->prepare($update_capacity);
-    $stmt->bind_param("i", $room_id);
-    $stmt->execute();
-    
-    // Update computer status
-    $update_computer = "UPDATE computers SET status = 'in-use', last_used = NOW() WHERE computer_id = ?";
-    $stmt = $conn->prepare($update_computer);
-    $stmt->bind_param("i", $computer_id);
-    $stmt->execute();
-    
     // Get computer name for sitin record
     $computer_name = $computer["computer_name"];
     $room_name = $computer["room_name"];
-    
-    // Insert sit-in record with computer information
-    $student_info = "SELECT fname, lname, course FROM studentinfo WHERE idno = ?";
-    $stmt = $conn->prepare($student_info);
-    $stmt->bind_param("i", $idno);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $student = $result->fetch_assoc();
-    
-    $name = $student["fname"] . " " . $student["lname"];
-    $course = $student["course"];
-    $sitin_purpose = $purpose;
-    
-    $insert_sitin = "INSERT INTO sit_in_records (idno, name, course, sitin_purpose, lab, computer, time_in) 
-                    VALUES (?, ?, ?, ?, ?, ?, NOW())";
-    $stmt = $conn->prepare($insert_sitin);
-    $stmt->bind_param("ssssss", $idno, $name, $course, $sitin_purpose, $room_id, $computer_name);
-    $stmt->execute();
-    
+
+
+    //FETCH LAST STATUS OF RESERVATION
+    $reservation_id = $conn->insert_id;
+
     // Commit the transaction
     $conn->commit();
     

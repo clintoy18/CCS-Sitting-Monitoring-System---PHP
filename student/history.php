@@ -1,35 +1,48 @@
 <?php
 session_start();
-include "../includes/connection.php"; // Corrected path for connection.php
-include "../includes/layout.php";    // Corrected path for layout.php
+include "../includes/connection.php";
+include "../includes/layout.php";
 
-// Check if the user is logged in
 if (!isset($_SESSION['idno'])) {
-    // Redirect to login page if not logged in
-    header("Location: ../auth/login.php"); // Corrected path for login.php
+    header("Location: ../auth/login.php");
     exit();
 }
 
-$user_id = $_SESSION['idno']; // Get the logged-in user's ID
+$user_id = $_SESSION['idno'];
 
-// Fetch current sit-in records for the logged-in user
+// Fetch current sit-in records (no pagination needed here)
 $query_current = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.computer, si.sitin_purpose, si.time_in, si.id AS sitin_id 
                   FROM sit_in_records si
                   JOIN studentinfo s ON si.idno = s.idno
-                  WHERE si.time_out IS NULL AND si.idno = ?"; // Filter by logged-in user
+                  WHERE si.time_out IS NULL AND si.idno = ?";
 $stmt_current = $conn->prepare($query_current);
 $stmt_current->bind_param("i", $user_id);
 $stmt_current->execute();
 $result_current = $stmt_current->get_result();
 
-// Fetch timed-out sit-in records for the logged-in user
+// Pagination setup
+$records_per_page = 5;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $records_per_page;
+
+// Get total records count
+$count_query = "SELECT COUNT(*) AS total FROM sit_in_records WHERE time_out IS NOT NULL AND idno = ?";
+$count_stmt = $conn->prepare($count_query);
+$count_stmt->bind_param("i", $user_id);
+$count_stmt->execute();
+$count_result = $count_stmt->get_result();
+$total_records = $count_result->fetch_assoc()['total'];
+$total_pages = ceil($total_records / $records_per_page);
+
+// Fetch paginated timed-out sit-in records
 $query_timedout = "SELECT s.idno, s.fname, s.lname, s.course, si.lab, si.computer, si.sitin_purpose, si.time_in, si.time_out 
                    FROM sit_in_records si
                    JOIN studentinfo s ON si.idno = s.idno
-                   WHERE si.time_out IS NOT NULL AND si.idno = ? 
-                   ORDER BY time_out DESC"; // Filter by logged-in user
+                   WHERE si.time_out IS NOT NULL AND si.idno = ?
+                   ORDER BY time_out DESC
+                   LIMIT ? OFFSET ?";
 $stmt_timedout = $conn->prepare($query_timedout);
-$stmt_timedout->bind_param("i", $user_id);
+$stmt_timedout->bind_param("iii", $user_id, $records_per_page, $offset);
 $stmt_timedout->execute();
 $result_timedout = $stmt_timedout->get_result();
 ?>
@@ -38,7 +51,6 @@ $result_timedout = $stmt_timedout->get_result();
     <!-- Current Sit-In Students Section -->
     <div class="bg-white shadow-md rounded-lg p-6">
         <h2 class="text-2xl font-semibold mb-6 text-gray-700">My On-Going Sit-in</h2>
-
         <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg">
             <thead class="bg-gray-200">
                 <tr>
@@ -106,6 +118,18 @@ $result_timedout = $stmt_timedout->get_result();
                 <?php endif; ?>
             </tbody>
         </table>
+
+        <!-- Pagination Links -->
+        <?php if ($total_pages > 1): ?>
+            <div class="mt-6 flex justify-center space-x-2">
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <a href="?page=<?= $i ?>"
+                       class="px-4 py-2 border rounded <?= ($i == $page) ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-200' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <!-- Feedback Section -->
@@ -126,4 +150,3 @@ $result_timedout = $stmt_timedout->get_result();
         </form>
     </div>
 </div>
-

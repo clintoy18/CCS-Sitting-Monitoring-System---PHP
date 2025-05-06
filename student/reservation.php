@@ -1,7 +1,22 @@
 <?php
+// Start session and include necessary files
 session_start();
-include "../includes/layout.php"; 
+include "../includes/layout.php";
 include "../includes/auth.php";
+
+// Fetch selected status from the dropdown, or default to 'approved'
+$selectedStatus = isset($_GET['status']) ? $_GET['status'] : 'approved';
+
+// Fetch all reservations filtered by status
+$query = "SELECT r.reservation_id, r.idno, r.room_id, r.computer_id, r.start_time, r.end_time, r.status, 
+                 s.fname, s.lname, s.course, c.computer_name, rm.room_name
+          FROM reservations r
+          JOIN studentinfo s ON r.idno = s.idno
+          JOIN computers c ON r.computer_id = c.computer_id
+          JOIN rooms rm ON r.room_id = rm.room_id
+          WHERE r.idno = $userID AND r.status = '$selectedStatus'";
+
+$reservationResult = $conn->query($query);
 ?>
 
 <div class="px-8 py-6">
@@ -24,7 +39,7 @@ include "../includes/auth.php";
                                   JOIN rooms ro ON r.room_id = ro.room_id
                                   WHERE r.idno = ? 
                                   AND DATE(r.start_time) = ? 
-                                  AND (r.status = 'reserved' OR r.status = 'active')";
+                                  AND (r.status = 'pending' OR r.status = 'active')";
         $stmt = $conn->prepare($check_daily_reservation);
         $stmt->bind_param("is", $userID, $today);
         $stmt->execute();
@@ -49,7 +64,7 @@ include "../includes/auth.php";
                     </div>
                     <div class='ml-3'>
                         <p class='text-sm text-yellow-700'>
-                            {$reservationMessage} <span class='font-medium'>Only one reservation per day is allowed.</span>
+                            {$reservationMessage} <span class='font-medium'>Only one reservation at a time is allowed.</span>
                         </p>
                     </div>
                 </div>
@@ -86,10 +101,7 @@ include "../includes/auth.php";
                 <thead class="bg-gray-100">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Room Number
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Room Name
+                            Room 
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                             Available Computers
@@ -118,7 +130,7 @@ include "../includes/auth.php";
                                 $room_id = $row["room_id"];
 
                                 // Check if user already reserved this room
-                                $check_reservation = "SELECT * FROM reservations WHERE idno = ? AND room_id = ? AND status = 'reserved'";
+                                $check_reservation = "SELECT * FROM reservations WHERE idno = ? AND room_id = ? AND status = 'approved'";
                                 $stmt = $conn->prepare($check_reservation);
                                 $stmt->bind_param("ii", $userID, $room_id);
                                 $stmt->execute();
@@ -138,14 +150,13 @@ include "../includes/auth.php";
                                 $hover_class = $row["status"] === 'available' ? 'hover:bg-green-50' : 'hover:bg-red-50';
                                 
                                 echo "<tr class='$hover_class transition-colors duration-150'>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium bg-gray-100 rounded-full px-3 py-1'>{$room_id}</span></td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap'>Laboratory {$row["room_name"]}</td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium bg-blue-50 text-blue-700 rounded-full px-3 py-1'>{$available_computers}</span> computers</td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium {$status_class} capitalize bg-" . ($row["status"] === 'available' ? 'green' : 'red') . "-50 px-3 py-1 rounded-full'>{$row["status"]}</span></td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap text-center'>";
                                 
                                 if ($hasReservationToday) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-yellow-100 text-yellow-800 shadow-sm'>Daily Limit Reached</span>";
+                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-yellow-100 text-yellow-800 shadow-sm'>One Reservation a time</span>";
                                 } else if ($remaining_sessions <= 0) {
                                     echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 shadow-sm'>No More Reservations</span>";
                                 } elseif ($row["capacity"] <= 0 || $available_computers <= 0) {
@@ -177,7 +188,6 @@ include "../includes/auth.php";
             </table>
         </div>
     </div>
-</div>
 
 <!-- Improved Computer Selection Modal -->
 <div id="computerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -247,7 +257,63 @@ include "../includes/auth.php";
         </div>
     </div>
 </div>
+  
 
+
+
+<div class="bg-white rounded-lg shadow-lg p-6 mb-12 mt-8">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Reservations</h2>
+
+    <!-- Dropdown for selecting status -->
+    <form action="" method="GET" class="mb-4">
+        <label for="status" class="text-gray-600 font-medium">Filter by Status:</label>
+        <select name="status" id="status" class="border rounded-md p-2 ml-2">
+            <option value="approved" <?php echo $selectedStatus == 'approved' ? 'selected' : ''; ?>>Approved</option>
+            <option value="rejected" <?php echo $selectedStatus == 'disapproved' ? 'selected' : ''; ?>>Rejected</option>
+            <option value="pending" <?php echo $selectedStatus == 'pending' ? 'selected' : ''; ?>>Pending</option>
+            <option value="completed" <?php echo $selectedStatus == 'completed' ? 'selected' : ''; ?>>Completed</option>
+        </select>
+        <button type="submit" class="bg-blue-500 text-white p-2 rounded-md ml-2">Filter</button>
+    </form>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Reservation ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Student Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Course</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Computer</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Room</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Start Time</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">End Time</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                <?php if ($reservationResult->num_rows > 0): ?>
+                    <?php while ($row = $reservationResult->fetch_assoc()): ?>
+                        <tr class="hover:bg-blue-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['reservation_id']) ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['course']) ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['computer_name']) ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['room_name']) ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['status']) ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['start_time']) ?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['end_time']) ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">No reservations found for selected status</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
 <script>
     let currentRoomId = null;
     const hasReservationToday = <?php echo $hasReservationToday ? 'true' : 'false'; ?>;
