@@ -28,15 +28,13 @@ if (isset($_GET['id'])) {
         $stmt->bind_param("i", $id);
         $stmt->execute();
 
-        // Undo actions when sit-in is logged out
-
-        // Increase one session for the student (opposite of deducting)
+        // Decrease one session for the student
         $update_sessions = "UPDATE studentinfo SET `session` = `session` - 1 WHERE idno = ?";
         $stmt = $conn->prepare($update_sessions);
         $stmt->bind_param("i", $row['idno']);
         $stmt->execute();
 
-        // Increase room capacity (opposite of deducting)
+        // Increase room capacity
         if (!empty($row['lab'])) {
             $update_capacity = "UPDATE rooms SET capacity = capacity + 1 WHERE room_id = ?";
             $stmt = $conn->prepare($update_capacity);
@@ -44,14 +42,29 @@ if (isset($_GET['id'])) {
             $stmt->execute();
         }
 
-        // Get the computer name from the sit-in record
+        // Update computer status to 'available' and update last_used
         $computer_name = $row['computer'];
-
-        // Update computer status to 'available' and update last_used timestamp
         $update_computer = "UPDATE computers SET status = 'available', last_used = NOW() WHERE computer_name = ?";
         $stmt = $conn->prepare($update_computer);
         $stmt->bind_param("s", $computer_name);
         $stmt->execute();
+
+        // Get the latest reservation_id for this student
+        $get_latest_reservation = "SELECT reservation_id FROM reservations WHERE idno = ? ORDER BY reservation_id DESC LIMIT 1";
+        $stmt = $conn->prepare($get_latest_reservation);
+        $stmt->bind_param("i", $row['idno']);
+        $stmt->execute();
+        $stmt->bind_result($latest_reservation_id);
+        $stmt->fetch();
+        $stmt->close();
+
+        // Update latest reservation status to 'completed' if found
+        if (!empty($latest_reservation_id)) {
+            $update_reservation = "UPDATE reservations SET status = 'completed' WHERE reservation_id = ?";
+            $stmt = $conn->prepare($update_reservation);
+            $stmt->bind_param("i", $latest_reservation_id);
+            $stmt->execute();
+        }
 
         // Commit all changes
         $conn->commit();
