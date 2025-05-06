@@ -262,7 +262,7 @@ $reservationResult = $conn->query($query);
 
 
 <div class="bg-white rounded-lg shadow-lg p-6 mb-12 mt-8">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Reservations</h2>
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Reservations Logs</h2>
 
     <!-- Dropdown for selecting status -->
     <form action="" method="GET" class="mb-4">

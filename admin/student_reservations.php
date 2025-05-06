@@ -1,59 +1,64 @@
 <?php
 include "../includes/connection.php"; 
-include "../includes/adminlayout.php"; // Include layout file
+include "../includes/adminlayout.php";
 
-// Fetch all reservations
+// Fetch all pending reservations
 $query = "SELECT r.reservation_id, r.idno, r.room_id, r.computer_id, r.start_time, r.end_time, r.status, 
                 s.fname, s.lname, s.course, c.computer_name, rm.room_name
           FROM reservations r
           JOIN studentinfo s ON r.idno = s.idno
           JOIN computers c ON r.computer_id = c.computer_id
           JOIN rooms rm ON r.room_id = rm.room_id
-          WHERE r.status = 'pending'"; // Only pending reservations
+          WHERE r.status = 'pending'";
 $reservationResult = $conn->query($query);
-
-
 ?>
 
-<div class="max-w-5xl p-6 mx-auto bg-gray-100 shadow-md rounded-lg">
-    <!-- Reservation List Section -->
-    <div class="bg-white shadow-md w-full rounded-lg p-6">
-        <h2 class="text-2xl font-bold mb-4">Pending Reservations</h2>
+<div class="max-w-6xl p-6 mx-auto bg-gray-100 rounded-lg">
+    <div class="bg-white shadow rounded-lg p-6 overflow-x-auto">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Pending Reservations</h2>
 
-        <table class="w-full border-collapse border border-gray-300">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="border p-2">Reservation ID</th>
-                    <th class="border p-2">Student Name</th>
-                    <th class="border p-2">Course</th>
-                    <th class="border p-2">Computer</th>
-                    <th class="border p-2">Room</th>
-                    <th class="border p-2">Start Time</th>
-                    <th class="border p-2">End Time</th>
-                    <th class="border p-2">Action</th>
+        <table class="w-full text-sm text-left border border-gray-300">
+            <thead class="bg-gray-200 text-gray-700 uppercase">
+                <tr>
+                    <th class="px-4 py-3 border">Reservation ID</th>
+                    <th class="px-4 py-3 border">Student Name</th>
+                    <th class="px-4 py-3 border">Course</th>
+                    <th class="px-4 py-3 border">Computer</th>
+                    <th class="px-4 py-3 border">Room</th>
+                    <th class="px-4 py-3 border">Start Time</th>
+                    <th class="px-4 py-3 border">End Time</th>
+                    <th class="px-4 py-3 border text-center">Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="bg-white divide-y divide-gray-200">
                 <?php if ($reservationResult->num_rows > 0): ?>
                     <?php while ($row = $reservationResult->fetch_assoc()): ?>
-                        <tr class="text-center">
-                            <td class="border p-2"><?= htmlspecialchars($row['reservation_id']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($row['course']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($row['computer_name']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($row['room_name']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($row['start_time']) ?></td>
-                            <td class="border p-2"><?= htmlspecialchars($row['end_time']) ?></td>
-                            <td class="border p-2">
-                                    <button class="px-4 py-2 bg-red-500 text-white rounded delete-btn" 
-                                    onclick="approveReservation('<?= $row['reservation_id'] ?>')">Approve</button>
-                                    <button class="px-4 py-2 bg-blue-500 text-white rounded reset-btn" 
-                                    onclick="rejectReservation('<?= $row['reservation_id'] ?>')">Reject</button>
+                        <tr>
+                            <td class="px-4 py-2 border"><?= htmlspecialchars($row['reservation_id']) ?></td>
+                            <td class="px-4 py-2 border"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
+                            <td class="px-4 py-2 border"><?= htmlspecialchars($row['course']) ?></td>
+                            <td class="px-4 py-2 border"><?= htmlspecialchars($row['computer_name']) ?></td>
+                            <td class="px-4 py-2 border"><?= htmlspecialchars($row['room_name']) ?></td>
+                            <td class="px-4 py-2 border"><?= htmlspecialchars($row['start_time']) ?></td>
+                            <td class="px-4 py-2 border"><?= htmlspecialchars($row['end_time']) ?></td>
+                            <td class="px-4 py-4 border text-center flex space-x-2">
+                                <button 
+                                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded-md transition duration-150"
+                                    onclick="approveReservation('<?= $row['reservation_id'] ?>')">
+                                    Approve
+                                </button>
+                                <button 
+                                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-md transition duration-150"
+                                    onclick="rejectReservation('<?= $row['reservation_id'] ?>')">
+                                    Disapprove
+                                </button>
                             </td>
                         </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <tr><td colspan="8" class="text-center p-4 text-gray-500">No pending reservations found</td></tr>
+                    <tr>
+                        <td colspan="8" class="text-center text-gray-500 py-4">No pending reservations found</td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -69,12 +74,12 @@ function approveReservation(reservationId) {
         .then(data => {
             if (data.success) {
                 alert('Reservation approved successfully!');
-                location.reload(); // Reload the page to see the changes
+                location.reload();
             } else {
                 alert('Error approving reservation: ' + data.message);
             }
         })
-        .catch(error => console.error('Error:', error)); // Handle network errors
+        .catch(error => console.error('Error:', error));
     }
 }
 
@@ -86,12 +91,12 @@ function rejectReservation(reservationId) {
         .then(data => {
             if (data.success) {
                 alert('Reservation rejected successfully!');
-                location.reload(); // Reload the page to see the changes
+                location.reload();
             } else {
                 alert('Error rejecting reservation: ' + data.message);
             }
         })
-        .catch(error => console.error('Error:', error)); // Handle network errors
+        .catch(error => console.error('Error:', error));
     }
 }
 </script>
