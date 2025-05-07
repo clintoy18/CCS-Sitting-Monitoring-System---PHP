@@ -18,47 +18,99 @@ $timedout_results = $result_timedout->fetch_all(MYSQLI_ASSOC);
 // Create PDF
 function generate_pdf($timedout_results) {
     // Create new PDF document
-    $pdf = new TCPDF();
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    
+    // Set document information
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('CCS SIT-IN Monitoring System');
+    $pdf->SetTitle('Timed-Out Sit-In Records');
+    
+    // Set default header data
+    $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, 'CCS SIT-IN Monitoring System', 'Timed-Out Sit-In Records');
+    
+    // Set header and footer fonts
+    $pdf->setHeaderFont(Array('helvetica', '', PDF_FONT_SIZE_MAIN));
+    $pdf->setFooterFont(Array('helvetica', '', PDF_FONT_SIZE_DATA));
+    
+    // Set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+    
+    // Set margins
+    $pdf->SetMargins(15, 15, 15);
+    $pdf->SetHeaderMargin(5);
+    $pdf->SetFooterMargin(10);
+    
+    // Set auto page breaks
+    $pdf->SetAutoPageBreak(TRUE, 15);
+    
+    // Add a page
     $pdf->AddPage();
     
-    // Set PDF title
-    $pdf->SetTitle('Timed-Out Sit-In Records');
-
-    // Add Timed-Out Sit-In Records Section
-    $pdf->SetFont('helvetica', 'B', 14);
+    // Set font
+    $pdf->SetFont('helvetica', 'B', 16);
+    
+    // Title
     $pdf->Cell(0, 10, 'Timed-Out Sit-In Records', 0, 1, 'C');
-    $pdf->SetFont('helvetica', '', 10);
     $pdf->Ln(5);
-
-    // Table Header with optimized column widths
+    
+    // Date and Time
+    $pdf->SetFont('helvetica', 'I', 10);
+    $pdf->Cell(0, 6, 'Generated on: ' . date('F d, Y h:i A'), 0, 1, 'R');
+    $pdf->Ln(5);
+    
+    // Table Header
     $pdf->SetFont('helvetica', 'B', 10);
-    $pdf->SetFillColor(200, 220, 255); // Light blue background for header
-
-    // Adjusted column widths to ensure they fit within page width (190mm)
-    $pdf->Cell(25, 8, 'Student ID', 1, 0, 'C', 1);  
-    $pdf->Cell(35, 8, 'Name', 1, 0, 'C', 1);           // Reduced width for Name column
-    $pdf->Cell(15, 8, 'Course', 1, 0, 'C', 1);         // Reduced width for Course column
-    $pdf->Cell(15, 8, 'Laboratory', 1, 0, 'C', 1);     // Adjusted width for Lab column
-    $pdf->Cell(35, 8, 'Purpose', 1, 0, 'C', 1);        // Added Purpose column
-    $pdf->Cell(30, 8, 'Time In', 1, 0, 'C', 1);        // Adjusted width for Time In
-    $pdf->Cell(30, 8, 'Time Out', 1, 1, 'C', 1);       // Adjusted width for Time Out
-
-    // Reset font for table data
-    $pdf->SetFont('helvetica', '', 10);
-
-    // Timed Out Students Data with improved alignment
-    foreach ($timedout_results as $row) {
-        // Cell height increased to 10 for better spacing
-        $pdf->Cell(25, 10, $row['idno'], 1, 0, 'C');
-        $pdf->Cell(35, 10, $row['fname'] . ' ' . $row['lname'], 1, 0, 'L'); // Left align name
-        $pdf->Cell(15, 10, $row['course'], 1, 0, 'C');
-        $pdf->Cell(15, 10, $row['lab'], 1, 0, 'C');
-        $pdf->Cell(35, 10, $row['sitin_purpose'], 1, 0, 'L'); // Added Purpose field
-        $pdf->Cell(30, 10, $row['time_in'], 1, 0, 'C'); // Adjusted width
-        $pdf->Cell(30, 10, $row['time_out'], 1, 1, 'C'); // Adjusted width
+    $pdf->SetFillColor(66, 139, 202); // Blue header background
+    $pdf->SetTextColor(255); // White text
+    
+    // Column widths
+    $w = array(25, 40, 20, 20, 35, 25, 25);
+    
+    // Header
+    $header = array('Student ID', 'Name', 'Course', 'Lab', 'Purpose', 'Time In', 'Time Out');
+    for($i = 0; $i < count($header); $i++) {
+        $pdf->Cell($w[$i], 7, $header[$i], 1, 0, 'C', 1);
     }
-
-    // Output the PDF to the browser
+    $pdf->Ln();
+    
+    // Reset text color and font for data
+    $pdf->SetTextColor(0);
+    $pdf->SetFont('helvetica', '', 9);
+    
+    // Table data
+    $fill = false;
+    foreach($timedout_results as $row) {
+        // Alternate row colors
+        $pdf->SetFillColor(245, 245, 245);
+        $fill = !$fill;
+        
+        // Format the data
+        $name = $row['fname'] . ' ' . $row['lname'];
+        $time_in = date('h:i A', strtotime($row['time_in']));
+        $time_out = date('h:i A', strtotime($row['time_out']));
+        
+        // Data cells
+        $pdf->Cell($w[0], 6, $row['idno'], 'LR', 0, 'C', $fill);
+        $pdf->Cell($w[1], 6, $name, 'LR', 0, 'L', $fill);
+        $pdf->Cell($w[2], 6, $row['course'], 'LR', 0, 'C', $fill);
+        $pdf->Cell($w[3], 6, $row['lab'], 'LR', 0, 'C', $fill);
+        $pdf->Cell($w[4], 6, $row['sitin_purpose'], 'LR', 0, 'L', $fill);
+        $pdf->Cell($w[5], 6, $time_in, 'LR', 0, 'C', $fill);
+        $pdf->Cell($w[6], 6, $time_out, 'LR', 0, 'C', $fill);
+        $pdf->Ln();
+    }
+    
+    // Closing line
+    $pdf->Cell(array_sum($w), 0, '', 'T');
+    
+    // Add summary
+    $pdf->Ln(10);
+    $pdf->SetFont('helvetica', 'B', 10);
+    $pdf->Cell(0, 6, 'Summary:', 0, 1, 'L');
+    $pdf->SetFont('helvetica', '', 10);
+    $pdf->Cell(0, 6, 'Total Records: ' . count($timedout_results), 0, 1, 'L');
+    
+    // Output the PDF
     $pdf->Output('sit_in_records_timedout.pdf', 'D');
 }
 
