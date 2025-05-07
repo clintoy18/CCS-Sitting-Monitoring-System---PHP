@@ -6,4 +6,7 @@ ADD COLUMN computer VARCHAR(50) NULL AFTER lab;
 ALTER TABLE reservations 
 ADD COLUMN computer_id INT NULL AFTER room_id,
 ADD CONSTRAINT fk_reservations_computer 
-FOREIGN KEY (computer_id) REFERENCES computers(computer_id); 
+FOREIGN KEY (computer_id) REFERENCES computers(computer_id);
+
+-- Add points column to studentinfo table
+ALTER TABLE studentinfo ADD COLUMN points INT DEFAULT 0; 

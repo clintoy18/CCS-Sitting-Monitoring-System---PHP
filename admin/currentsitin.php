@@ -25,7 +25,17 @@ $result_timedout = $conn->query($query_timedout);
 ?>
 
 <div class="max-w-7xl p-6 mx-auto bg-gray-100 shadow-xl rounded-lg space-y-8">
-
+    <?php if (isset($_GET['success']) && $_GET['success'] === 'rewarded'): ?>
+        <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Success!</strong>
+            <span class="block sm:inline">Student has been rewarded successfully.</span>
+        </div>
+        <script>
+            setTimeout(function() {
+                document.getElementById('success-message').style.display = 'none';
+            }, 2000);
+        </script>
+    <?php endif; ?>
     <!-- Current Sit-In Students Section -->
     <div class="bg-white shadow-md rounded-lg p-6">
         <h2 class="text-2xl font-semibold mb-6 text-gray-700">Current Sit-In Students</h2>
@@ -59,6 +69,11 @@ $result_timedout = $conn->query($query_timedout);
                                    onclick="return confirm('Are you sure you want to log out this student?')"
                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300 ease-in-out inline-flex items-center justify-center space-x-1">
                                     <i class="fas fa-sign-out-alt"></i> <span>Timeout</span>
+                                </a>
+                                <a href="reward_student.php?id=<?= $row['sitin_id'] ?>" 
+                                   onclick="return confirm('Are you sure you want to reward this student?')"
+                                   class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 ease-in-out inline-flex items-center justify-center space-x-1 ml-2">
+                                    <i class="fas fa-star"></i> <span>Reward</span>
                                 </a>
                             </td>
                         </tr>

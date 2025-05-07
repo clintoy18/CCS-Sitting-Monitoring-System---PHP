@@ -49,6 +49,10 @@ include "../includes/connection.php"; // Include the database connection
                 <p class="w-28 font-bold text-black dark:text-white">Session:</p>
                 <p class="ml-4"><?php echo htmlspecialchars($userData['session']); ?></p>
             </div>
+            <div class="flex">
+                <p class="w-28 font-bold text-black dark:text-white">Lab Points:</p>
+                <p class="ml-4"><?php echo htmlspecialchars($userData['points']); ?></p>
+            </div>
         </div>
     </div>
 
