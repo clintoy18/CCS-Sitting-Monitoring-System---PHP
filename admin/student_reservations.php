@@ -65,38 +65,143 @@ $reservationResult = $conn->query($query);
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 // Approve Reservation
 function approveReservation(reservationId) {
-    if (confirm('Are you sure you want to approve this reservation?')) {
-        fetch(`admin_approval.php?id=${reservationId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Reservation approved successfully!');
-                location.reload();
-            } else {
-                alert('Error approving reservation: ' + data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
+    Swal.fire({
+        title: 'Approve Reservation',
+        text: 'Are you sure you want to approve this reservation?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3B82F6',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Yes, approve reservation',
+        background: '#ffffff',
+        color: '#1F2937',
+        customClass: {
+            title: 'text-xl font-bold text-gray-800',
+            content: 'text-gray-600',
+            confirmButton: 'px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors duration-300',
+            cancelButton: 'px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-300'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`admin_approval.php?id=${reservationId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Reservation approved successfully!',
+                        icon: 'success',
+                        background: '#ffffff',
+                        color: '#1F2937',
+                        customClass: {
+                            title: 'text-xl font-bold text-gray-800',
+                            content: 'text-gray-600'
+                        }
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error approving reservation: ' + data.message,
+                        icon: 'error',
+                        background: '#ffffff',
+                        color: '#1F2937',
+                        customClass: {
+                            title: 'text-xl font-bold text-gray-800',
+                            content: 'text-gray-600'
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while processing your request.',
+                    icon: 'error',
+                    background: '#ffffff',
+                    color: '#1F2937',
+                    customClass: {
+                        title: 'text-xl font-bold text-gray-800',
+                        content: 'text-gray-600'
+                    }
+                });
+                console.error('Error:', error);
+            });
+        }
+    });
 }
 
 // Reject Reservation
 function rejectReservation(reservationId) {
-    if (confirm('Are you sure you want to reject this reservation?')) {
-        fetch(`reject_reservation.php?id=${reservationId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Reservation rejected successfully!');
-                location.reload();
-            } else {
-                alert('Error rejecting reservation: ' + data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
+    Swal.fire({
+        title: 'Reject Reservation',
+        text: 'Are you sure you want to reject this reservation?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Yes, reject reservation',
+        background: '#ffffff',
+        color: '#1F2937',
+        customClass: {
+            title: 'text-xl font-bold text-gray-800',
+            content: 'text-gray-600',
+            confirmButton: 'px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors duration-300',
+            cancelButton: 'px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-300'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`reject_reservation.php?id=${reservationId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Reservation rejected successfully!',
+                        icon: 'success',
+                        background: '#ffffff',
+                        color: '#1F2937',
+                        customClass: {
+                            title: 'text-xl font-bold text-gray-800',
+                            content: 'text-gray-600'
+                        }
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Error rejecting reservation: ' + data.message,
+                        icon: 'error',
+                        background: '#ffffff',
+                        color: '#1F2937',
+                        customClass: {
+                            title: 'text-xl font-bold text-gray-800',
+                            content: 'text-gray-600'
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while processing your request.',
+                    icon: 'error',
+                    background: '#ffffff',
+                    color: '#1F2937',
+                    customClass: {
+                        title: 'text-xl font-bold text-gray-800',
+                        content: 'text-gray-600'
+                    }
+                });
+                console.error('Error:', error);
+            });
+        }
+    });
 }
 </script>

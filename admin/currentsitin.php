@@ -311,7 +311,12 @@ function generatePDF() {
             Swal.showLoading();
         }
     });
-    window.location.href = "generate_pdf.php";
+
+    // Set timeout to close the loader after 2 seconds
+    setTimeout(() => {
+        Swal.close();
+        window.location.href = "generate_pdf.php";
+    }, 2000);
 }
 
 function generateCSV() {
