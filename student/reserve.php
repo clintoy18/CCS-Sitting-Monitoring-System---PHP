@@ -23,21 +23,22 @@ if (!$computer_id) {
     exit;
 }
 
-// Check if student has already made a reservation today
+// STRICT CHECK: Block if student has any pending or approved reservations
 $today = date('Y-m-d');
-$check_daily_reservation = "SELECT reservation_id 
-                           FROM reservations 
-                           WHERE idno = ? 
-                           AND DATE(start_time) = ? 
-                           AND (status = 'approved' OR status = 'active')";
-$stmt = $conn->prepare($check_daily_reservation);
-$stmt->bind_param("is", $idno, $today);
+$check_existing = "SELECT reservation_id, status 
+                   FROM reservations 
+                   WHERE idno = ? 
+                   AND (status = 'pending' OR status = 'approved')";
+$stmt = $conn->prepare($check_existing);
+$stmt->bind_param("i", $idno);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result && $result->num_rows > 0) {
+    $reservation = $result->fetch_assoc();
+    $status = ucfirst($reservation['status']);
     echo "<script>
-            alert('You have already reserved a computer today. Only one reservation per day is allowed.');
+            alert('You already have a {$status} reservation. You cannot make another reservation until this one is completed or rejected.');
             window.location.href='reservation.php';
           </script>";
     exit;

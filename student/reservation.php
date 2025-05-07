@@ -25,7 +25,7 @@ $reservationResult = $conn->query($query);
     </h1>
 
     <?php
-    // Check if student has already reserved a PC today
+    // Check if student has any pending or approved reservations
     include '../includes/connection.php';
     $hasReservationToday = false;
     $reservationMessage = "";
@@ -34,23 +34,23 @@ $reservationResult = $conn->query($query);
         $userID = $_SESSION["idno"];
         $today = date('Y-m-d');
         
-        // Check if student has made a reservation today
-        $check_daily_reservation = "SELECT r.reservation_id, r.room_id, r.computer_id, c.computer_name, ro.room_name 
-                                  FROM reservations r 
-                                  JOIN computers c ON r.computer_id = c.computer_id 
-                                  JOIN rooms ro ON r.room_id = ro.room_id
-                                  WHERE r.idno = ? 
-                                  AND DATE(r.start_time) = ? 
-                                  AND (r.status = 'pending' OR r.status = 'active')";
-        $stmt = $conn->prepare($check_daily_reservation);
-        $stmt->bind_param("is", $userID, $today);
+        // STRICT CHECK: Block if student has any pending or approved reservations
+        $check_existing = "SELECT r.reservation_id, r.room_id, r.computer_id, r.status, c.computer_name, ro.room_name 
+                          FROM reservations r 
+                          JOIN computers c ON r.computer_id = c.computer_id 
+                          JOIN rooms ro ON r.room_id = ro.room_id
+                          WHERE r.idno = ? 
+                          AND (r.status = 'pending' OR r.status = 'approved')";
+        $stmt = $conn->prepare($check_existing);
+        $stmt->bind_param("i", $userID);
         $stmt->execute();
         $result = $stmt->get_result();
         
         if ($result && $result->num_rows > 0) {
             $hasReservationToday = true;
             $reservation = $result->fetch_assoc();
-            $reservationMessage = "You have already reserved <strong>PC {$reservation['computer_name']}</strong> in <strong>Laboratory {$reservation['room_name']}</strong> today.";
+            $status = ucfirst($reservation['status']);
+            $reservationMessage = "You have a <strong>{$status}</strong> reservation for <strong>PC {$reservation['computer_name']}</strong> in <strong>Laboratory {$reservation['room_name']}</strong>. You cannot make another reservation until this one is completed or rejected.";
         }
         $stmt->close();
     }
