@@ -20,7 +20,9 @@ $reservationResult = $conn->query($query);
 ?>
 
 <div class="px-8 py-6">
-    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Laboratory Room Reservations</h1>
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8 flex items-center justify-center">
+        <i class="fas fa-desktop text-blue-600 mr-3"></i>Laboratory Room Reservations
+    </h1>
 
     <?php
     // Check if student has already reserved a PC today
@@ -55,12 +57,10 @@ $reservationResult = $conn->query($query);
     
     // Display alert if student has a reservation today
     if ($hasReservationToday) {
-        echo "<div class='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6'>
+        echo "<div class='bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-sm'>
                 <div class='flex items-center'>
                     <div class='flex-shrink-0'>
-                        <svg class='h-5 w-5 text-yellow-400' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'>
-                            <path fill-rule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clip-rule='evenodd'/>
-                        </svg>
+                        <i class='fas fa-exclamation-triangle text-yellow-400 text-xl'></i>
                     </div>
                     <div class='ml-3'>
                         <p class='text-sm text-yellow-700'>
@@ -72,10 +72,13 @@ $reservationResult = $conn->query($query);
     }
     ?>
 
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8 transition-all duration-300 hover:shadow-xl">
         <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-3 sm:mb-0">Available Rooms</h2>
-            <div class="bg-gray-50 rounded-full px-4 py-2 flex items-center shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-700 mb-3 sm:mb-0 flex items-center">
+                <i class="fas fa-door-open text-blue-600 mr-2"></i>Available Rooms
+            </h2>
+            <div class="bg-gray-50 rounded-full px-4 py-2 flex items-center shadow-sm border border-gray-200">
+                <i class="fas fa-clock text-blue-600 mr-2"></i>
                 <span class="font-medium text-gray-600 mr-2">Sessions Remaining:</span> 
                 <?php
                     if (!isset($_SESSION["idno"])) {
@@ -90,7 +93,7 @@ $reservationResult = $conn->query($query);
                         $student = $result->fetch_assoc();
                         $remaining_sessions = $student["session"] ?? 0;
                         $session_color = $remaining_sessions > 0 ? "text-green-600" : "text-red-600";
-                        echo "<span class='$session_color font-bold text-lg px-2 py-1 rounded-full bg-white shadow-inner'>" . $remaining_sessions . "</span>";
+                        echo "<span class='$session_color font-bold text-lg px-2 py-1 rounded-full bg-white shadow-inner border border-gray-200'>" . $remaining_sessions . "</span>";
                     }
                 ?>
             </div>
@@ -98,26 +101,28 @@ $reservationResult = $conn->query($query);
 
         <div class="overflow-x-auto rounded-lg border border-gray-200">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-100">
+                <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Room 
+                            <i class="fas fa-building text-blue-600 mr-2"></i>Room 
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Available Computers
+                            <i class="fas fa-desktop text-blue-600 mr-2"></i>Available Computers
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Status
+                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>Status
                         </th>
                         <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Action
+                            <i class="fas fa-cog text-blue-600 mr-2"></i>Action
                         </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                 <?php
                     if (!isset($_SESSION["idno"])) {
-                        echo "<tr><td colspan='5' class='p-4 text-center text-red-600 font-medium'>Please log in to reserve a room.</td></tr>";
+                        echo "<tr><td colspan='4' class='p-4 text-center text-red-600 font-medium'>
+                                <i class='fas fa-exclamation-circle mr-2'></i>Please log in to reserve a room.
+                            </td></tr>";
                     } else {
                         $userID = $_SESSION["idno"];
                         $remaining_sessions = $student["session"] ?? 0;
@@ -150,25 +155,41 @@ $reservationResult = $conn->query($query);
                                 $hover_class = $row["status"] === 'available' ? 'hover:bg-green-50' : 'hover:bg-red-50';
                                 
                                 echo "<tr class='$hover_class transition-colors duration-150'>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'>Laboratory {$row["room_name"]}</td>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium bg-blue-50 text-blue-700 rounded-full px-3 py-1'>{$available_computers}</span> computers</td>";
-                                echo "<td class='px-6 py-4 whitespace-nowrap'><span class='font-medium {$status_class} capitalize bg-" . ($row["status"] === 'available' ? 'green' : 'red') . "-50 px-3 py-1 rounded-full'>{$row["status"]}</span></td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'>
+                                        <i class='fas fa-door-open text-blue-600 mr-2'></i>Laboratory {$row["room_name"]}
+                                    </td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'>
+                                        <span class='font-medium bg-blue-50 text-blue-700 rounded-full px-3 py-1 border border-blue-200'>
+                                            <i class='fas fa-desktop mr-1'></i>{$available_computers} computers
+                                        </span>
+                                    </td>";
+                                echo "<td class='px-6 py-4 whitespace-nowrap'>
+                                        <span class='font-medium {$status_class} capitalize bg-" . ($row["status"] === 'available' ? 'green' : 'red') . "-50 px-3 py-1 rounded-full border border-" . ($row["status"] === 'available' ? 'green' : 'red') . "-200'>
+                                            <i class='fas fa-" . ($row["status"] === 'available' ? 'check' : 'times') . " mr-1'></i>{$row["status"]}
+                                        </span>
+                                    </td>";
                                 echo "<td class='px-6 py-4 whitespace-nowrap text-center'>";
                                 
                                 if ($hasReservationToday) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-yellow-100 text-yellow-800 shadow-sm'>One Reservation a time</span>";
+                                    echo "<span class='inline-flex items-center px-4 py-2 text-xs font-semibold rounded-md bg-yellow-100 text-yellow-800 border border-yellow-200 shadow-sm'>
+                                            <i class='fas fa-exclamation-circle mr-1'></i>One Reservation a time
+                                        </span>";
                                 } else if ($remaining_sessions <= 0) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 shadow-sm'>No More Reservations</span>";
+                                    echo "<span class='inline-flex items-center px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 border border-red-200 shadow-sm'>
+                                            <i class='fas fa-times-circle mr-1'></i>No More Reservations
+                                        </span>";
                                 } elseif ($row["capacity"] <= 0 || $available_computers <= 0) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 shadow-sm'>Room is Full</span>";
+                                    echo "<span class='inline-flex items-center px-4 py-2 text-xs font-semibold rounded-md bg-red-100 text-red-800 border border-red-200 shadow-sm'>
+                                            <i class='fas fa-door-closed mr-1'></i>Room is Full
+                                        </span>";
                                 } elseif ($isReserved) {
-                                    echo "<span class='inline-flex px-4 py-2 text-xs font-semibold rounded-md bg-gray-100 text-gray-800 shadow-sm'>Already Reserved</span>";
+                                    echo "<span class='inline-flex items-center px-4 py-2 text-xs font-semibold rounded-md bg-gray-100 text-gray-800 border border-gray-200 shadow-sm'>
+                                            <i class='fas fa-check-circle mr-1'></i>Already Reserved
+                                        </span>";
                                 } else {
-                                    echo "<button type='button' onclick='showComputers({$room_id})' class='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm'>
-                                            <svg xmlns='http://www.w3.org/2000/svg' class='h-4 w-4 mr-2' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7' />
-                                            </svg>
-                                            Select Computer
+                                    echo "<button type='button' onclick='showComputers({$room_id})' 
+                                            class='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors shadow-sm border border-blue-500'>
+                                            <i class='fas fa-desktop mr-2'></i>Select Computer
                                         </button>";
                                 }
                                 
@@ -179,7 +200,9 @@ $reservationResult = $conn->query($query);
                                 $comp_stmt->close();
                         }
                         } else {
-                            echo "<tr><td colspan='5' class='p-4 text-center text-gray-500'>No laboratory rooms available at this time.</td></tr>";
+                            echo "<tr><td colspan='4' class='p-4 text-center text-gray-500'>
+                                    <i class='fas fa-info-circle mr-2'></i>No laboratory rooms available at this time.
+                                </td></tr>";
                         }
                         mysqli_close($conn);
                     }
@@ -188,6 +211,123 @@ $reservationResult = $conn->query($query);
             </table>
         </div>
     </div>
+
+    <!-- Reservations Logs Section -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-12 mt-8 transition-all duration-300 hover:shadow-xl">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-6 flex items-center">
+            <i class="fas fa-history text-blue-600 mr-2"></i>Reservations Logs
+        </h2>
+
+        <!-- Dropdown for selecting status -->
+        <form action="" method="GET" class="mb-4">
+            <label for="status" class="text-gray-600 font-medium flex items-center">
+                <i class="fas fa-filter text-blue-600 mr-2"></i>Filter by Status:
+            </label>
+            <div class="flex items-center mt-2">
+                <select name="status" id="status" class="border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors duration-200">
+                    <option value="approved" <?php echo $selectedStatus == 'approved' ? 'selected' : ''; ?>>Approved</option>
+                    <option value="rejected" <?php echo $selectedStatus == 'disapproved' ? 'selected' : ''; ?>>Rejected</option>
+                    <option value="pending" <?php echo $selectedStatus == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                    <option value="completed" <?php echo $selectedStatus == 'completed' ? 'selected' : ''; ?>>Completed</option>
+                </select>
+                <button type="submit" class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 flex items-center">
+                    <i class="fas fa-search mr-2"></i>Filter
+                </button>
+            </div>
+        </form>
+
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-hashtag text-blue-600 mr-2"></i>Reservation ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-user text-blue-600 mr-2"></i>Student Name
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-2"></i>Course
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-desktop text-blue-600 mr-2"></i>Computer
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-building text-blue-600 mr-2"></i>Room
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-sign-in-alt text-blue-600 mr-2"></i>Start Time
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            <i class="fas fa-sign-out-alt text-blue-600 mr-2"></i>End Time
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                    <?php if ($reservationResult->num_rows > 0): ?>
+                        <?php while ($row = $reservationResult->fetch_assoc()): ?>
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['reservation_id']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['course']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['computer_name']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['room_name']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800">
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium
+                                        <?php
+                                        switch($row['status']) {
+                                            case 'approved':
+                                                echo 'bg-green-100 text-green-800 border border-green-200';
+                                                break;
+                                            case 'rejected':
+                                                echo 'bg-red-100 text-red-800 border border-red-200';
+                                                break;
+                                            case 'pending':
+                                                echo 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+                                                break;
+                                            case 'completed':
+                                                echo 'bg-blue-100 text-blue-800 border border-blue-200';
+                                                break;
+                                        }
+                                        ?>">
+                                        <i class="fas fa-<?php
+                                            switch($row['status']) {
+                                                case 'approved':
+                                                    echo 'check';
+                                                    break;
+                                                case 'rejected':
+                                                    echo 'times';
+                                                    break;
+                                                case 'pending':
+                                                    echo 'clock';
+                                                    break;
+                                                case 'completed':
+                                                    echo 'check-double';
+                                                    break;
+                                            }
+                                        ?> mr-1"></i>
+                                        <?= htmlspecialchars($row['status']) ?>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['start_time']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['end_time']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                <i class="fas fa-info-circle mr-2"></i>No reservations found for selected status
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <!-- Improved Computer Selection Modal -->
 <div id="computerModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -257,63 +397,7 @@ $reservationResult = $conn->query($query);
         </div>
     </div>
 </div>
-  
 
-
-
-<div class="bg-white rounded-lg shadow-lg p-6 mb-12 mt-8">
-    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Reservations Logs</h2>
-
-    <!-- Dropdown for selecting status -->
-    <form action="" method="GET" class="mb-4">
-        <label for="status" class="text-gray-600 font-medium">Filter by Status:</label>
-        <select name="status" id="status" class="border rounded-md p-2 ml-2">
-            <option value="approved" <?php echo $selectedStatus == 'approved' ? 'selected' : ''; ?>>Approved</option>
-            <option value="rejected" <?php echo $selectedStatus == 'disapproved' ? 'selected' : ''; ?>>Rejected</option>
-            <option value="pending" <?php echo $selectedStatus == 'pending' ? 'selected' : ''; ?>>Pending</option>
-            <option value="completed" <?php echo $selectedStatus == 'completed' ? 'selected' : ''; ?>>Completed</option>
-        </select>
-        <button type="submit" class="bg-blue-500 text-white p-2 rounded-md ml-2">Filter</button>
-    </form>
-
-    <div class="overflow-x-auto rounded-lg border border-gray-200">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Reservation ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Student Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Course</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Computer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Room</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Start Time</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">End Time</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200 text-sm">
-                <?php if ($reservationResult->num_rows > 0): ?>
-                    <?php while ($row = $reservationResult->fetch_assoc()): ?>
-                        <tr class="hover:bg-blue-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['reservation_id']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['course']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['computer_name']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['room_name']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['status']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['start_time']) ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-800"><?= htmlspecialchars($row['end_time']) ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">No reservations found for selected status</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-</div>
 <script>
     let currentRoomId = null;
     const hasReservationToday = <?php echo $hasReservationToday ? 'true' : 'false'; ?>;

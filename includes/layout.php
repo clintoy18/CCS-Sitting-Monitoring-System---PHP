@@ -15,6 +15,8 @@ include "auth.php";
     <script src="./assets/vendor/jquery/dist/jquery.min.js"></script>
     <script src="./assets/vendor/datatables.net/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.2/dist/flowbite.min.js"></script>
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
       .dt-layout-row:has(.dt-search),
       .dt-layout-row:has(.dt-length),
@@ -49,11 +51,15 @@ include "auth.php";
         </div>
         <ul class="py-2" aria-labelledby="user-menu-button">
           <li>
-            <a href="editprofile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</a>
+            <a href="editprofile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+              <i class="fas fa-cog mr-2"></i>Settings
+            </a>
           </li>
           
           <li>
-            <a href="../auth/logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>
+            <a href="../auth/logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+              <i class="fas fa-sign-out-alt mr-2"></i>Sign out
+            </a>
           </li>
         </ul>
       </div>
@@ -69,15 +75,21 @@ include "auth.php";
     <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-4 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
     <?php ?>
     <li>
-    <a href="dashboard.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Home</a>
+    <a href="dashboard.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
+      <i class="fas fa-home mr-2"></i>Home
+    </a>
     </li>
       <li>
-        <a href="reservation.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Reservations</a>
+        <a href="reservation.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
+          <i class="fas fa-calendar-check mr-2"></i>Reservations
+        </a>
       </li>
    
 
       <li>
-        <a href="history.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">History</a>
+        <a href="history.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
+          <i class="fas fa-history mr-2"></i>History
+        </a>
       </li>
     </ul>
   </div>
@@ -86,20 +98,13 @@ include "auth.php";
 
 <!-- Page-specific content will be inserted here -->
 <div>
-
     <?php
     // Include the page content from the individual pages here
-
     if (isset($content)) {
         echo $content;
-        
-  
     }
     ?>
 </div>
 
-
 </body>
 </html>
-
-

@@ -47,84 +47,130 @@ $stmt_timedout->execute();
 $result_timedout = $stmt_timedout->get_result();
 ?>
 
-<div class="max-w-7xl p-6 mx-auto bg-gray-100 shadow-xl rounded-lg space-y-8">
+<div class="max-w-7xl p-6 mx-auto bg-gray-50 space-y-8">
     <!-- Current Sit-In Students Section -->
-    <div class="bg-white shadow-md rounded-lg p-6">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-700">My On-Going Sit-in</h2>
-        <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg">
-            <thead class="bg-gray-200">
-                <tr>
-                    <th class="border p-3 text-left">Student ID</th>
-                    <th class="border p-3 text-left">Name</th>
-                    <th class="border p-3 text-left">Course</th>
-                    <th class="border p-3 text-left">Laboratory</th>
-                    <th class="border p-3 text-left">Computer</th>
-                    <th class="border p-3 text-left">Purpose</th>
-                    <th class="border p-3 text-left">Time In</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                <?php if ($result_current->num_rows > 0): ?>
-                    <?php while ($row = $result_current->fetch_assoc()): ?>
+    <div class="bg-white shadow-lg rounded-xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-xl">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+            <i class="fas fa-clock text-blue-600 mr-2"></i>My On-Going Sit-in
+        </h2>
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full table-auto border-collapse">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-id-card text-blue-600 mr-2"></i>Student ID
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-user text-blue-600 mr-2"></i>Name
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-2"></i>Course
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-building text-blue-600 mr-2"></i>Laboratory
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-desktop text-blue-600 mr-2"></i>Computer
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-tasks text-blue-600 mr-2"></i>Purpose
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-sign-in-alt text-blue-600 mr-2"></i>Time In
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php if ($result_current->num_rows > 0): ?>
+                        <?php while ($row = $result_current->fetch_assoc()): ?>
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['idno']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['course']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['lab']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['time_in']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
                         <tr>
-                            <td class="border p-3"><?= htmlspecialchars($row['idno']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['course']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['lab']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['time_in']) ?></td>
+                            <td colspan="7" class="p-4 text-center text-gray-500">
+                                <i class="fas fa-info-circle mr-2"></i>No active sit-ins
+                            </td>
                         </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr><td colspan="7" class="text-center p-4 text-gray-500">No active sit-ins</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Timed-Out Sit-In Records Section -->
-    <div class="bg-white shadow-md w-full rounded-lg p-6">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-700">Sit-In Records</h2>
-        <table class="w-full table-auto border-collapse border border-gray-300 rounded-lg">
-            <thead class="bg-gray-200">
-                <tr>
-                    <th class="border p-3 text-left">Student ID</th>
-                    <th class="border p-3 text-left">Name</th>
-                    <th class="border p-3 text-left">Course</th>
-                    <th class="border p-3 text-left">Laboratory</th>
-                    <th class="border p-3 text-left">Computer</th>
-                    <th class="border p-3 text-left">Purpose</th>
-                    <th class="border p-3 text-left">Time In</th>
-                    <th class="border p-3 text-left">Time Out</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                <?php if ($result_timedout->num_rows > 0): ?>
-                    <?php while ($row = $result_timedout->fetch_assoc()): ?>
+    <div class="bg-white shadow-lg rounded-xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-xl">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+            <i class="fas fa-history text-blue-600 mr-2"></i>Sit-In Records
+        </h2>
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full table-auto border-collapse">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-id-card text-blue-600 mr-2"></i>Student ID
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-user text-blue-600 mr-2"></i>Name
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-graduation-cap text-blue-600 mr-2"></i>Course
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-building text-blue-600 mr-2"></i>Laboratory
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-desktop text-blue-600 mr-2"></i>Computer
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-tasks text-blue-600 mr-2"></i>Purpose
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-sign-in-alt text-blue-600 mr-2"></i>Time In
+                        </th>
+                        <th class="border-b border-gray-200 p-3 text-left text-sm font-semibold text-gray-600">
+                            <i class="fas fa-sign-out-alt text-blue-600 mr-2"></i>Time Out
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php if ($result_timedout->num_rows > 0): ?>
+                        <?php while ($row = $result_timedout->fetch_assoc()): ?>
+                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['idno']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['course']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['lab']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['time_in']) ?></td>
+                                <td class="p-3 text-sm text-gray-700"><?= htmlspecialchars($row['time_out']) ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
                         <tr>
-                            <td class="border p-3"><?= htmlspecialchars($row['idno']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['fname'] . " " . $row['lname']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['course']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['lab']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['computer'] ?: 'N/A') ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['sitin_purpose']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['time_in']) ?></td>
-                            <td class="border p-3"><?= htmlspecialchars($row['time_out']) ?></td>
+                            <td colspan="8" class="p-4 text-center text-gray-500">
+                                <i class="fas fa-info-circle mr-2"></i>No timed-out records
+                            </td>
                         </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr><td colspan="8" class="text-center p-4 text-gray-500">No timed-out records</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pagination Links -->
         <?php if ($total_pages > 1): ?>
             <div class="mt-6 flex justify-center space-x-2">
                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                    <a href="?page=<?= $i ?>"
-                       class="px-4 py-2 border rounded <?= ($i == $page) ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-200' ?>">
+                    <a href="?page=<?= $i ?>" 
+                       class="px-4 py-2 border border-gray-200 rounded-lg <?= ($i == $page) ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50' ?> transition-colors duration-200">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
@@ -133,20 +179,52 @@ $result_timedout = $stmt_timedout->get_result();
     </div>
 
     <!-- Feedback Section -->
-    <div class="bg-white shadow-md w-full rounded-lg p-6 mt-6">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-700">Submit Feedback</h2>
+    <div class="bg-white shadow-lg rounded-xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-xl">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+            <i class="fas fa-comment-alt text-blue-600 mr-2"></i>Submit Feedback
+        </h2>
         <form action="submit_feedback.php" method="POST">
             <div class="mb-4">
-                <label for="student_id" class="block text-gray-700 font-medium mb-2">Student ID</label>
-                <input type="text" id="student_id" name="student_id" class="w-full p-3 border rounded-lg" value="<?= htmlspecialchars($user_id) ?>" readonly>
+                <label for="student_id" class="block text-gray-700 font-medium mb-2 flex items-center">
+                    <i class="fas fa-id-card text-blue-600 mr-2"></i>Student ID
+                </label>
+                <input type="text" id="student_id" name="student_id" 
+                       class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors duration-200" 
+                       value="<?= htmlspecialchars($user_id) ?>" readonly>
             </div>
             <div class="mb-4">
-                <label for="feedback" class="block text-gray-700 font-medium mb-2">Feedback</label>
-                <textarea id="feedback" name="feedback" class="w-full p-3 border rounded-lg" placeholder="Write your feedback here..." required></textarea>
+                <label for="feedback" class="block text-gray-700 font-medium mb-2 flex items-center">
+                    <i class="fas fa-comment text-blue-600 mr-2"></i>Feedback
+                </label>
+                <textarea id="feedback" name="feedback" 
+                          class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors duration-200" 
+                          placeholder="Write your feedback here..." required></textarea>
             </div>
-            <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out">
-                Submit Feedback
+            <button type="submit" 
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 flex items-center justify-center">
+                <i class="fas fa-paper-plane mr-2"></i>Submit Feedback
             </button>
         </form>
     </div>
 </div>
+
+<style>
+    /* Custom scrollbar styles */
+    textarea::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    textarea::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
