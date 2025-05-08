@@ -56,6 +56,11 @@ include "adminauth.php"; // Ensure authentication is checked first
         <i class="fas fa-calendar-check mr-2"></i>Student Reservations
     </a>
     </li>
+    <li>
+    <a href="lab_schedules.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 flex items-center">
+        <i class="fas fa-calendar mr-2"></i>Lab Schedule
+    </a>
+    </li>
       <li>
         <a href="currentsitin.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 flex items-center">
             <i class="fas fa-desktop mr-2"></i>Current Sit-In Record
