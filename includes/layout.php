@@ -93,6 +93,72 @@ include "auth.php";
             <i class="fas fa-book mr-2"></i>Resources
           </a>
         </li>
+        <!-- Notification Bell -->
+        <li class="relative">
+          <button id="notificationBell" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
+            <i class="fas fa-bell text-xl"></i>
+            <?php
+            // Get count of approved reservations
+            if (isset($_SESSION["idno"])) {
+                $userID = $_SESSION["idno"];
+                $approved_query = "SELECT COUNT(*) as count FROM reservations WHERE idno = ? AND status = 'approved'";
+                $stmt = $conn->prepare($approved_query);
+                $stmt->bind_param("i", $userID);
+                $stmt->execute();
+                $approved_count = $stmt->get_result()->fetch_assoc()['count'];
+                if ($approved_count > 0) {
+                    echo '<span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">' . $approved_count . '</span>';
+                }
+            }
+            ?>
+          </button>
+          
+          <!-- Notification Dropdown -->
+          <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+            <div class="p-4 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-800">Reservation Status</h3>
+            </div>
+            <div id="notificationList" class="max-h-96 overflow-y-auto">
+              <?php
+              if (isset($_SESSION["idno"])) {
+                  // Get approved reservations
+                  $recent_query = "SELECT r.*, c.computer_name, rm.room_name 
+                                 FROM reservations r 
+                                 JOIN computers c ON r.computer_id = c.computer_id 
+                                 JOIN rooms rm ON r.room_id = rm.room_id 
+                                 WHERE r.idno = ? AND r.status = 'approved' 
+                                 ORDER BY r.start_time DESC 
+                                 LIMIT 5";
+                  $stmt = $conn->prepare($recent_query);
+                  $stmt->bind_param("i", $userID);
+                  $stmt->execute();
+                  $recent_result = $stmt->get_result();
+                  
+                  if ($recent_result->num_rows > 0) {
+                      while ($row = $recent_result->fetch_assoc()) {
+                          echo '<div class="p-4 hover:bg-gray-50 border-b border-gray-200">
+                                  <div class="flex items-start">
+                                      <div class="flex-1">
+                                          <p class="text-sm text-gray-800">
+                                              <span class="font-semibold text-green-600">Reservation Approved!</span><br>
+                                              PC ' . htmlspecialchars($row['computer_name']) . ' in Lab ' . htmlspecialchars($row['room_name']) . '
+                                          </p>
+                                          <p class="text-xs text-gray-500 mt-1">' . date('M d, Y h:i A', strtotime($row['start_time'])) . '</p>
+                                      </div>
+                                  </div>
+                                </div>';
+                      }
+                  } else {
+                      echo '<div class="p-4 text-center text-gray-500">No approved reservations</div>';
+                  }
+              }
+              ?>
+            </div>
+            <div class="p-4 border-t border-gray-200">
+              <a href="reservation.php" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View All Reservations</a>
+            </div>
+          </div>
+        </li>
       </ul>
     </div>
   </div>
@@ -107,6 +173,66 @@ include "auth.php";
     }
     ?>
 </div>
+
+<script>
+// Toggle notification dropdown
+document.getElementById('notificationBell').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('notificationDropdown');
+    dropdown.classList.toggle('hidden');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('notificationDropdown');
+    const bell = document.getElementById('notificationBell');
+    
+    if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Refresh notifications every 30 seconds
+setInterval(function() {
+    fetch('get_student_notifications.php')
+        .then(response => response.json())
+        .then(data => {
+            const notificationList = document.getElementById('notificationList');
+            const notificationCount = document.querySelector('#notificationBell span');
+            
+            if (data.reservations.length > 0) {
+                if (notificationCount) {
+                    notificationCount.textContent = data.reservations.length;
+                } else {
+                    const countSpan = document.createElement('span');
+                    countSpan.className = 'absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center';
+                    countSpan.textContent = data.reservations.length;
+                    document.getElementById('notificationBell').appendChild(countSpan);
+                }
+                
+                notificationList.innerHTML = data.reservations.map(reservation => `
+                    <div class="p-4 hover:bg-gray-50 border-b border-gray-200">
+                        <div class="flex items-start">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-800">
+                                    <span class="font-semibold text-green-600">Reservation Approved!</span><br>
+                                    PC ${reservation.computer_name} in Lab ${reservation.room_name}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">${reservation.start_time}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                if (notificationCount) {
+                    notificationCount.remove();
+                }
+                notificationList.innerHTML = '<div class="p-4 text-center text-gray-500">No approved reservations</div>';
+            }
+        })
+        .catch(error => console.error('Error loading notifications:', error));
+}, 30000);
+</script>
 
 </body>
 </html>

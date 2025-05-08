@@ -46,17 +46,77 @@ include "adminauth.php"; // Ensure authentication is checked first
         <i class="fas fa-users mr-2"></i>Student List
       </a>
       <a href="student_reservations.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
-        <i class="fas fa-calendar-check mr-2"></i>Student Reservations
+        <i class="fas fa-calendar-check mr-2"></i>Reservations
       </a>
       <a href="lab_schedules.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
         <i class="fas fa-calendar mr-2"></i>Lab Schedule
       </a>
       <a href="lab_resources.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
-        <i class="fas fa-book mr-2"></i>Lab Resources
+        <i class="fas fa-book mr-2"></i>Resources
+      </a>
+      <a href="pc_management.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
+        <i class="fas fa-calendar-check mr-2"></i>PC Management
       </a>
       <a href="currentsitin.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
-        <i class="fas fa-desktop mr-2"></i>Current Sit-In Record
+        <i class="fas fa-desktop mr-2"></i>Manage Sit-in
       </a>
+      <!-- Notification Bell -->
+      <div class="relative">
+        <button id="notificationBell" class="text-gray-600 hover:text-blue-600 focus:outline-none">
+          <i class="fas fa-bell text-xl"></i>
+          <?php
+          // Get count of pending reservations
+          $pending_query = "SELECT COUNT(*) as count FROM reservations WHERE status = 'pending'";
+          $pending_result = $conn->query($pending_query);
+          $pending_count = $pending_result->fetch_assoc()['count'];
+          if ($pending_count > 0) {
+              echo '<span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">' . $pending_count . '</span>';
+          }
+          ?>
+        </button>
+        
+        <!-- Notification Dropdown -->
+        <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+          <div class="p-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Recent Reservations</h3>
+          </div>
+          <div id="notificationList" class="max-h-96 overflow-y-auto">
+            <?php
+            // Get recent reservations
+            $recent_query = "SELECT r.*, s.fname, s.lname, c.computer_name, rm.room_name 
+                           FROM reservations r 
+                           JOIN studentinfo s ON r.idno = s.idno 
+                           JOIN computers c ON r.computer_id = c.computer_id 
+                           JOIN rooms rm ON r.room_id = rm.room_id 
+                           WHERE r.status = 'pending' 
+                           ORDER BY r.start_time DESC 
+                           LIMIT 5";
+            $recent_result = $conn->query($recent_query);
+            
+            if ($recent_result->num_rows > 0) {
+                while ($row = $recent_result->fetch_assoc()) {
+                    echo '<a href="student_reservations.php" class="block p-4 hover:bg-gray-50 border-b border-gray-200">
+                            <div class="flex items-start">
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-800">
+                                        <span class="font-semibold">' . htmlspecialchars($row['fname'] . ' ' . $row['lname']) . '</span>
+                                        requested PC ' . htmlspecialchars($row['computer_name']) . ' in Lab ' . htmlspecialchars($row['room_name']) . '
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">' . date('M d, Y h:i A', strtotime($row['start_time'])) . '</p>
+                                </div>
+                            </div>
+                          </a>';
+                }
+            } else {
+                echo '<div class="p-4 text-center text-gray-500">No new reservations</div>';
+            }
+            ?>
+          </div>
+          <div class="p-4 border-t border-gray-200">
+            <a href="student_reservations.php" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View All Reservations</a>
+          </div>
+        </div>
+      </div>
       <a href="../auth/logout.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
         <i class="fas fa-sign-out-alt mr-2"></i>Signout
       </a>
@@ -109,6 +169,7 @@ include "adminauth.php"; // Ensure authentication is checked first
 </div>
 
 
+
 </body>
 </html>
 <script>
@@ -155,6 +216,68 @@ $(document).ready(function() {
     });
 });
 
+// Function to load notifications
+function loadNotifications() {
+    fetch('get_notifications.php')
+        .then(response => response.json())
+        .then(data => {
+            const notificationList = document.getElementById('notificationList');
+            const notificationCount = document.getElementById('notificationCount');
+            
+            if (data.notifications.length > 0) {
+                notificationCount.textContent = data.notifications.length;
+                notificationCount.classList.remove('hidden');
+                
+                notificationList.innerHTML = data.notifications.map(notification => `
+                    <a href="student_reservations.php?id=${notification.reservation_id}" 
+                       class="block p-4 hover:bg-gray-50 border-b border-gray-200 ${notification.is_read ? 'bg-gray-50' : 'bg-blue-50'}">
+                        <div class="flex items-start">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-800">${notification.message}</p>
+                                <p class="text-xs text-gray-500 mt-1">${notification.created_at}</p>
+                            </div>
+                            ${!notification.is_read ? '<span class="ml-2 h-2 w-2 bg-blue-500 rounded-full"></span>' : ''}
+                        </div>
+                    </a>
+                `).join('');
+            } else {
+                notificationCount.classList.add('hidden');
+                notificationList.innerHTML = `
+                    <div class="p-4 text-center text-gray-500">
+                        No new notifications
+                    </div>
+                `;
+            }
+        })
+        .catch(error => console.error('Error loading notifications:', error));
+}
+
+// Toggle notification dropdown
+document.getElementById('notificationBell').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('notificationDropdown');
+    dropdown.classList.toggle('hidden');
+    
+    if (!dropdown.classList.contains('hidden')) {
+        loadNotifications();
+    }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('notificationDropdown');
+    const bell = document.getElementById('notificationBell');
+    
+    if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Load notifications every 30 seconds
+setInterval(loadNotifications, 30000);
+
+// Initial load
+loadNotifications();
 </script>
 
 

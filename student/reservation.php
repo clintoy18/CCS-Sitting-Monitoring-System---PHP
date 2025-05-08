@@ -537,35 +537,32 @@ if ($stmt) {
         
         const purpose = document.getElementById('purpose-select').value;
         
-        // Create and submit a form with the reservation details
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'reserve.php';
+        // Create form data
+        const formData = new FormData();
+        formData.append('room_id', roomId);
+        formData.append('computer_id', computerId);
+        formData.append('purpose', purpose);
         
-        // Room ID
-        const roomInput = document.createElement('input');
-        roomInput.type = 'hidden';
-        roomInput.name = 'room_id';
-        roomInput.value = roomId;
-        form.appendChild(roomInput);
+        // Submit reservation via AJAX
+        fetch('submit_reservation.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Reservation submitted successfully!');
+                window.location.reload(); // Refresh the page to show the new reservation
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the reservation. Please try again.');
+        });
         
-        // Computer ID
-        const computerInput = document.createElement('input');
-        computerInput.type = 'hidden';
-        computerInput.name = 'computer_id';
-        computerInput.value = computerId;
-        form.appendChild(computerInput);
-        
-        // Purpose
-        const purposeInput = document.createElement('input');
-        purposeInput.type = 'hidden';
-        purposeInput.name = 'purpose';
-        purposeInput.value = purpose;
-        form.appendChild(purposeInput);
-        
-        // Append form to body and submit
-        document.body.appendChild(form);
-        form.submit();
+        closeModal();
     }
     
     function closeModal() {
