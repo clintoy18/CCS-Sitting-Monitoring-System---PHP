@@ -14,7 +14,7 @@ $conn->begin_transaction();
 try {
     // Fetch reservation details to be inserted into sit_in_records
     $reservation_query = "
-        SELECT r.idno, r.room_id, r.computer_id, s.fname, s.lname, s.course, 
+        SELECT r.idno, r.room_id, r.computer_id, r.sitin_purpose, s.fname, s.lname, s.course, 
                c.computer_name, rm.room_name
         FROM reservations r
         JOIN studentinfo s ON r.idno = s.idno
@@ -38,18 +38,17 @@ try {
     $stmt->bind_param("i", $reservation_id);
     $stmt->execute();
 
-    // Insert into sit_in_records table
-    $insert_sitin = "
-        INSERT INTO sit_in_records (idno, name, course, sitin_purpose, lab, computer, time_in)
-        VALUES (?, ?, ?, ?, ?, ?, NOW())";
+    // Insert into sit_in_records with the actual purpose
+    $insert_query = "INSERT INTO sit_in_records (idno, name, course, sitin_purpose, lab, computer, time_in) 
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())";
     
-    $stmt = $conn->prepare($insert_sitin);
+    $stmt = $conn->prepare($insert_query);
     $idno = $reservation['idno'];
     $name = $reservation['fname'] . ' ' . $reservation['lname'];
     $course = $reservation['course'];
+    $purpose = $reservation['sitin_purpose'];  // Get purpose directly from reservation
     $lab = $reservation['room_name'];
-    $computer = $reservation['computer_name'];  // Store computer name
-    $purpose = "Self-Service Reservation";  // Default purpose
+    $computer = $reservation['computer_name'];
     $stmt->bind_param("ssssss", $idno, $name, $course, $purpose, $lab, $computer);
     $stmt->execute();
 

@@ -8,15 +8,23 @@ include "../includes/auth.php";
 $selectedStatus = isset($_GET['status']) ? $_GET['status'] : 'approved';
 
 // Fetch all reservations filtered by status
-$query = "SELECT r.reservation_id, r.idno, r.room_id, r.computer_id, r.start_time, r.end_time, r.status, 
+$query = "SELECT r.reservation_id, r.idno, r.room_id, r.computer_id, r.start_time, r.end_time, r.status, r.sitin_purpose,
                  s.fname, s.lname, s.course, c.computer_name, rm.room_name
           FROM reservations r
           JOIN studentinfo s ON r.idno = s.idno
           JOIN computers c ON r.computer_id = c.computer_id
           JOIN rooms rm ON r.room_id = rm.room_id
-          WHERE r.idno = $userID AND r.status = '$selectedStatus'";
+          WHERE r.idno = ? AND r.status = ?";
 
-$reservationResult = $conn->query($query);
+$stmt = $conn->prepare($query);
+if ($stmt) {
+    $stmt->bind_param("is", $userID, $selectedStatus);
+    $stmt->execute();
+    $reservationResult = $stmt->get_result();
+    $stmt->close();
+} else {
+    die("Error preparing statement: " . $conn->error);
+}
 ?>
 
 <div class="px-8 py-6">
@@ -130,26 +138,32 @@ $reservationResult = $conn->query($query);
                         $sql = "SELECT * FROM rooms";
                         $result = $conn->query($sql);
 
-                        if ($result->num_rows > 0) {
+                        if ($result && $result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                                 $room_id = $row["room_id"];
 
                                 // Check if user already reserved this room
                                 $check_reservation = "SELECT * FROM reservations WHERE idno = ? AND room_id = ? AND status = 'approved'";
                                 $stmt = $conn->prepare($check_reservation);
-                                $stmt->bind_param("ii", $userID, $room_id);
-                                $stmt->execute();
-                                $reservation_result = $stmt->get_result();
-                                $isReserved = $reservation_result->num_rows > 0;
+                                if ($stmt) {
+                                    $stmt->bind_param("ii", $userID, $room_id);
+                                    $stmt->execute();
+                                    $reservation_result = $stmt->get_result();
+                                    $isReserved = $reservation_result->num_rows > 0;
+                                    $stmt->close();
+                                }
 
                                 // Get available computers count
                                 $check_computers = "SELECT COUNT(*) as available_count FROM computers WHERE room_id = ? AND status = 'available'";
                                 $comp_stmt = $conn->prepare($check_computers);
-                                $comp_stmt->bind_param("i", $room_id);
-                                $comp_stmt->execute();
-                                $comp_result = $comp_stmt->get_result();
-                                $comp_row = $comp_result->fetch_assoc();
-                                $available_computers = $comp_row['available_count'];
+                                if ($comp_stmt) {
+                                    $comp_stmt->bind_param("i", $room_id);
+                                    $comp_stmt->execute();
+                                    $comp_result = $comp_stmt->get_result();
+                                    $comp_row = $comp_result->fetch_assoc();
+                                    $available_computers = $comp_row['available_count'];
+                                    $comp_stmt->close();
+                                }
 
                                 $status_class = $row["status"] === 'available' ? 'text-green-600' : 'text-red-600';
                                 $hover_class = $row["status"] === 'available' ? 'hover:bg-green-50' : 'hover:bg-red-50';
@@ -195,9 +209,6 @@ $reservationResult = $conn->query($query);
                                 
                                 echo "</td>";
                                 echo "</tr>";
-
-                                $stmt->close();
-                                $comp_stmt->close();
                         }
                         } else {
                             echo "<tr><td colspan='4' class='p-4 text-center text-gray-500'>

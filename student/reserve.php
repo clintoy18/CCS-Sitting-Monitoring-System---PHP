@@ -92,10 +92,14 @@ $conn->begin_transaction();
 
 try {
     // Insert reservation
-    $insert_reservation = "INSERT INTO reservations (room_id, idno, computer_id, start_time, end_time, status) 
-                          VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 1 HOUR), 'pending')";
-    $stmt = $conn->prepare($insert_reservation);
-    $stmt->bind_param("iii", $room_id, $idno, $computer_id);
+    $insert_query = "INSERT INTO reservations (idno, room_id, computer_id, start_time, end_time, status, sitin_purpose) 
+                    VALUES (?, ?, ?, ?, ?, 'pending', ?)";
+    
+    $stmt = $conn->prepare($insert_query);
+    $purpose = $_POST['purpose'];  // Store the purpose in a variable first
+    $start_time = date('Y-m-d H:i:s');
+    $end_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
+    $stmt->bind_param("iiisss", $idno, $room_id, $computer_id, $start_time, $end_time, $purpose);
     $stmt->execute();
 
     // Get computer name for sitin record
