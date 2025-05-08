@@ -30,46 +30,48 @@ include "adminauth.php"; // Ensure authentication is checked first
 </head>
 <body class ="bg-[#D4D9E3] ">   
 <nav class="bg-white border-gray-200 dark:bg-gray-900">
-  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-  <a href="admindashboard.php" class="flex items-center space-x-3 rtl:space-x-reverse">
-  <img src="/assets/images/ccslogo.png" alt="" class="h-14">
+  <div class="max-w-screen-xl mx-auto p-4 flex flex-wrap justify-between items-center">
+    <!-- Logo Section -->
+    <a href="admindashboard.php" class="flex items-center space-x-3 rtl:space-x-reverse">
+      <img src="/assets/images/ccslogo.png" alt="CCS Logo" class="h-14">
       <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-black">CCS SIT-IN Monitoring</span>
-  </a>
-  <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-    
+    </a>
 
-  <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
-    <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-4 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-    <?php ?>
-    <li>
-    <a href="admindashboard.php" id="navSearch" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 flex items-center">
+    <!-- Desktop Nav Links -->
+    <div class="hidden md:flex flex-wrap items-center gap-x-4 gap-y-2 font-medium text-sm md:text-base" id="navbar-user">
+      <a href="admindashboard.php" id="navSearch" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
         <i class="fas fa-search mr-2"></i>Search
-    </a>
-    </li>
-    <li>
-    <a href="student_list.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 flex items-center">
+      </a>
+      <a href="student_list.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
         <i class="fas fa-users mr-2"></i>Student List
-    </a>
-    </li>
-    <li>
-    <a href="student_reservations.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 flex items-center">
+      </a>
+      <a href="student_reservations.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
         <i class="fas fa-calendar-check mr-2"></i>Student Reservations
-    </a>
-    </li>
-      <li>
-        <a href="currentsitin.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 flex items-center">
-            <i class="fas fa-desktop mr-2"></i>Current Sit-In Record
-        </a>
-      </li>
-      <li>
-        <a href="../auth/logout.php" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 flex items-center">
-            <i class="fas fa-sign-out-alt mr-2"></i>Signout
-        </a>
-      </li>
-    </ul>
+      </a>
+      <a href="lab_schedules.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
+        <i class="fas fa-calendar mr-2"></i>Lab Schedule
+      </a>
+      <a href="lab_resources.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
+        <i class="fas fa-book mr-2"></i>Lab Resources
+      </a>
+      <a href="currentsitin.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
+        <i class="fas fa-desktop mr-2"></i>Current Sit-In Record
+      </a>
+      <a href="../auth/logout.php" class="flex items-center text-gray-900 hover:text-blue-700 dark:text-white dark:hover:text-blue-500 whitespace-nowrap">
+        <i class="fas fa-sign-out-alt mr-2"></i>Signout
+      </a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden ml-auto">
+      <button type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-user" aria-expanded="false">
+        <span class="sr-only">Open main menu</span>
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
   </div>
-  </div>
-</nav> 
+</nav>
+
 
 
 <div>

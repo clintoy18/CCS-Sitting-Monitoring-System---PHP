@@ -397,6 +397,26 @@ if ($stmt) {
                     </div>
                 </div>
             </div>
+
+            <!-- Add this inside your form, before the computer selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Reservation Date</label>
+                    <input type="date" name="reservation_date" required
+                           min="<?= date('Y-m-d') ?>"
+                           value="<?= date('Y-m-d') ?>"
+                           class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Select your preferred date</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Reservation Time</label>
+                    <input type="time" name="reservation_time" required
+                           min="07:30" max="22:00"
+                           value="<?= date('H:i') ?>"
+                           class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Available: 7:30 AM - 10:00 PM</p>
+                </div>
+            </div>
         </div>
         <div id="computersContainer" class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6">
             <!-- Computers will be loaded here via AJAX -->
@@ -572,6 +592,62 @@ if ($stmt) {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && !document.getElementById('computerModal').classList.contains('hidden')) {
             closeModal();
+        }
+    });
+
+    // Add this JavaScript after your existing scripts
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.querySelector('input[name="reservation_date"]');
+        const timeInput = document.querySelector('input[name="reservation_time"]');
+        const today = new Date();
+        const currentHour = today.getHours();
+        const currentMinutes = today.getMinutes();
+
+        // Set min date to today
+        dateInput.min = today.toISOString().split('T')[0];
+
+        // Handle date change
+        dateInput.addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const isToday = selectedDate.toDateString() === today.toDateString();
+
+            if (isToday) {
+                // If today, set min time to current time + 1 hour
+                const minHour = currentHour + 1;
+                const minTime = `${minHour.toString().padStart(2, '0')}:${currentMinutes.toString().padStart(2, '0')}`;
+                timeInput.min = minTime;
+                
+                // If current time is after 9 PM, disable time selection
+                if (currentHour >= 21) {
+                    timeInput.disabled = true;
+                    timeInput.value = '';
+                    alert('Reservations are not available after 9 PM');
+                }
+            } else {
+                // For future dates, allow all times
+                timeInput.min = '07:30';
+                timeInput.max = '22:00';
+                timeInput.disabled = false;
+            }
+        });
+
+        // Handle time change
+        timeInput.addEventListener('change', function() {
+            const selectedTime = this.value;
+            const [hours, minutes] = selectedTime.split(':').map(Number);
+            
+            // Check if time is within business hours
+            if (hours < 7 || (hours === 7 && minutes < 30) || hours >= 22) {
+                alert('Please select a time between 7:30 AM and 10:00 PM');
+                this.value = '';
+            }
+        });
+
+        // Initial check for today's date
+        if (dateInput.value === today.toISOString().split('T')[0]) {
+            const minHour = currentHour + 1;
+            const minTime = `${minHour.toString().padStart(2, '0')}:${currentMinutes.toString().padStart(2, '0')}`;
+            timeInput.min = minTime;
         }
     });
 </script>

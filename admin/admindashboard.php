@@ -61,6 +61,124 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
         <?php endforeach; ?>
     </div>
 
+    <!-- Leaderboard Section -->
+    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 mb-8 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 p-6">
+            <h2 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-trophy text-yellow-400 mr-3 animate-pulse"></i>
+                Top 5 Students
+            </h2>
+            <p class="text-black mt-2 font-medium tracking-wide flex items-center">
+                <i class="fas fa-chart-line text-blue-300 mr-2"></i>
+                Best performing students based on 
+                <span class="text-yellow-600 mx-1">points</span> 
+                and 
+                <span class="text-green-00 mx-1">sessions</span>
+            </p>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-5 gap-6">
+                <?php
+                // Calculate combined score: (points * 2) - sessions
+                $leaderboardQuery = "SELECT idno, fname, lname, points, session, profile_picture,
+                                   (points * 2) - session as combined_score
+                                   FROM studentinfo 
+                                   ORDER BY combined_score DESC, points DESC, session ASC 
+                                   LIMIT 5";
+                $leaderboardResult = $conn->query($leaderboardQuery);
+                
+                if ($leaderboardResult->num_rows > 0) {
+                    $rank = 1;
+                    while ($student = $leaderboardResult->fetch_assoc()) {
+                        $medalClass = match($rank) {
+                            1 => 'text-yellow-500 animate-bounce',
+                            2 => 'text-gray-400',
+                            3 => 'text-amber-600',
+                            default => 'text-gray-300'
+                        };
+                        $rankClass = match($rank) {
+                            1 => 'bg-gradient-to-br from-yellow-400/10 via-yellow-500/10 to-amber-500/10 border-yellow-400/20',
+                            2 => 'bg-gradient-to-br from-gray-300/10 via-gray-400/10 to-gray-500/10 border-gray-300/20',
+                            3 => 'bg-gradient-to-br from-amber-500/10 via-amber-600/10 to-amber-700/10 border-amber-500/20',
+                            default => 'bg-gradient-to-br from-gray-100/10 via-gray-200/10 to-gray-300/10 border-gray-200/20'
+                        };
+                        ?>
+                        <div class="relative group">
+                            <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                            <div class="relative flex flex-col h-full p-5 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 <?= $rankClass ?> border backdrop-blur-sm">
+                                <!-- Rank Badge -->
+                                <div class="absolute -top-4 -right-4 w-12 h-12 flex items-center justify-center">
+                                    <div class="relative">
+                                        <div class="absolute inset-0 bg-white rounded-full blur-sm opacity-50"></div>
+                                        <i class="fas fa-medal <?= $medalClass ?> text-3xl drop-shadow-lg relative z-10"></i>
+                                        <?php if ($rank <= 3): ?>
+                                            <span class="absolute -top-2 -right-2 bg-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold text-gray-800 shadow-md">
+                                                <?= $rank ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <!-- Profile Picture -->
+                                <div class="flex justify-center mb-4">
+                                    <div class="relative">
+                                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-md opacity-50"></div>
+                                        <?php if (!empty($student['profile_picture'])): ?>
+                                            <img src="<?= htmlspecialchars($student['profile_picture']) ?>" 
+                                                 alt="Profile" 
+                                                 class="relative w-20 h-20 rounded-full object-cover border-2 border-white shadow-lg">
+                                        <?php else: ?>
+                                            <div class="relative w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shadow-lg border-2 border-white">
+                                                <i class="fas fa-user text-gray-400 text-3xl"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <!-- Student Info -->
+                                <div class="text-center mb-4">
+                                    <h3 class="font-bold text-base truncate text-gray-900">
+                                        <?= htmlspecialchars($student['fname'] . ' ' . $student['lname']) ?>
+                                    </h3>
+                                    <p class="text-xs font-semibold text-gray-700 mt-1">
+                                        ID: <?= htmlspecialchars($student['idno']) ?>
+                                    </p>
+                                </div>
+
+                                <!-- Stats -->
+                                <div class="mt-auto space-y-3">
+                                    <div class="px-3 py-2 bg-gradient-to-r from-purple-500/10 to-purple-600/10 backdrop-blur-sm rounded-xl text-xs font-bold shadow-sm flex items-center justify-center border border-purple-200/30">
+                                        <i class="fas fa-calculator text-purple-600 mr-2"></i>
+                                        <span class="text-gray-900">Score: <?= htmlspecialchars($student['combined_score']) ?></span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="px-3 py-2 bg-gradient-to-r from-green-500/10 to-green-600/10 backdrop-blur-sm rounded-xl text-xs font-bold shadow-sm flex items-center justify-center border border-green-200/30">
+                                            <i class="fas fa-clock text-green-600 mr-2"></i>
+                                            <span class="text-gray-900"><?= htmlspecialchars($student['session']) ?></span>
+                                        </div>
+                                        <div class="px-3 py-2 bg-gradient-to-r from-blue-500/10 to-blue-600/10 backdrop-blur-sm rounded-xl text-xs font-bold shadow-sm flex items-center justify-center border border-blue-200/30">
+                                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                            <span class="text-gray-900"><?= htmlspecialchars($student['points']) ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                        $rank++;
+                    }
+                } else {
+                    echo '<div class="col-span-5 text-center text-gray-500 py-8">
+                            <i class="fas fa-trophy text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-base font-medium">No students found</p>
+                          </div>';
+                }
+                ?>
+            </div>
+        </div>
+    </div>
+
     <!-- Charts & Announcements -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Sit-in Chart -->
@@ -210,7 +328,7 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
 
 <style>
 .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
