@@ -73,7 +73,7 @@ while ($row = mysqli_fetch_assoc($sitinData1)) {
                 Best performing students based on 
                 <span class="text-yellow-600 mx-1">points</span> 
                 and 
-                <span class="text-green-600 mx-1">sessions</span>
+                <span class="text-green-00 mx-1">sessions</span>
             </p>
         </div>
 
