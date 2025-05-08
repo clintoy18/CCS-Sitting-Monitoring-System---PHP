@@ -13,6 +13,28 @@ $idno = $_SESSION["idno"];
 $room_id = $_POST["room_id"] ?? 0;
 $computer_id = isset($_POST["computer_id"]) ? $_POST["computer_id"] : null;
 $purpose = isset($_POST["purpose"]) ? $_POST["purpose"] : "Self-Service Reservation";
+$reservation_date = isset($_POST["reservation_date"]) ? $_POST["reservation_date"] : date('Y-m-d');
+$reservation_time = isset($_POST["reservation_time"]) ? $_POST["reservation_time"] : date('H:i:s');
+
+// Validate date and time
+$current_date = date('Y-m-d');
+$current_time = date('H:i:s');
+
+if ($reservation_date < $current_date) {
+    echo "<script>
+            alert('Cannot make reservations for past dates.');
+            window.location.href='reservation.php';
+          </script>";
+    exit;
+}
+
+if ($reservation_date == $current_date && $reservation_time < $current_time) {
+    echo "<script>
+            alert('Cannot make reservations for past times.');
+            window.location.href='reservation.php';
+          </script>";
+    exit;
+}
 
 // Check if computer_id is provided
 if (!$computer_id) {
@@ -24,7 +46,6 @@ if (!$computer_id) {
 }
 
 // STRICT CHECK: Block if student has any pending or approved reservations
-$today = date('Y-m-d');
 $check_existing = "SELECT reservation_id, status 
                    FROM reservations 
                    WHERE idno = ? 
@@ -91,21 +112,211 @@ if ($computer["status"] !== "available") {
 $conn->begin_transaction();
 
 try {
+    // Check for lab schedule conflicts using MySQL
+    $check_schedule = "SELECT ls.*, 
+                      CASE 
+                          WHEN ls.is_recurring = 1 THEN DAYNAME(ls.schedule_date)
+                          ELSE NULL 
+                      END as day_name
+                      FROM lab_schedules ls
+                      WHERE ls.room_id = ? 
+                      AND ls.status = 'active'
+                      AND (
+                          -- Check recurring schedules
+                          (ls.is_recurring = 1 AND DAYNAME(?) = DAYNAME(ls.schedule_date))
+                          OR 
+                          -- Check specific date schedules
+                          (ls.is_recurring = 0 AND DATE(?) = ls.schedule_date)
+                      )
+                      AND (
+                          -- Check time overlap
+                          (ls.start_time <= TIME(?) AND ls.end_time > TIME(?)) OR
+                          (ls.start_time < TIME(?) AND ls.end_time >= TIME(?)) OR
+                          (ls.start_time >= TIME(?) AND ls.end_time <= TIME(?))
+                      )";
+    
+    $stmt = $conn->prepare($check_schedule);
+    $end_time = date('H:i:s', strtotime($reservation_time . ' +1 hour'));
+    
+    // Count the number of ? in the query
+    $param_count = substr_count($check_schedule, '?');
+    $types = str_repeat('s', $param_count);
+    $types[0] = 'i'; // First parameter is room_id (integer)
+    
+    $stmt->bind_param($types, 
+        $room_id, 
+        $reservation_date,  // For recurring schedule day check
+        $reservation_date,  // For specific date check
+        $reservation_time,  // For first time check
+        $reservation_time,  // For first time check
+        $end_time,         // For second time check
+        $end_time,         // For second time check
+        $reservation_time, // For third time check
+        $end_time         // For third time check
+    );
+    
+    $stmt->execute();
+    $schedule_result = $stmt->get_result();
+    
+    if ($schedule_result->num_rows > 0) {
+        $conflicts = [];
+        while ($conflict = $schedule_result->fetch_assoc()) {
+            $schedule_type = $conflict['is_recurring'] ? 'recurring' : 'specific';
+            $day_name = $conflict['day_name'] ?? date('l', strtotime($conflict['schedule_date']));
+            $start_time = date('h:i A', strtotime($conflict['start_time']));
+            $end_time = date('h:i A', strtotime($conflict['end_time']));
+            
+            $conflicts[] = "{$schedule_type} schedule on {$day_name} from {$start_time} to {$end_time}";
+        }
+        
+        $conflict_message = implode("\n", $conflicts);
+        echo "<!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Reservation Conflict</title>
+            <script src='https://cdn.tailwindcss.com'></script>
+            <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
+        </head>
+        <body class='bg-gray-50 min-h-screen flex items-center justify-center p-4'>
+            <div class='bg-white rounded-xl shadow-xl p-8 max-w-md w-full border border-red-100'>
+                <div class='text-center mb-6'>
+                    <div class='inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 mb-4'>
+                        <i class='fas fa-exclamation-triangle text-4xl'></i>
+                    </div>
+                    <h2 class='text-2xl font-bold text-gray-800 mb-2'>Reservation Conflict</h2>
+                    <p class='text-gray-600'>This time slot conflicts with existing lab schedules.</p>
+                </div>
+                
+                <div class='bg-red-50 rounded-lg border border-red-200 py-6 px-4 my-6'>
+                    <h3 class='text-lg font-semibold text-red-800 mb-3'>Conflicting Schedules:</h3>
+                    <div class='space-y-2'>";
+        
+        foreach ($conflicts as $conflict) {
+            echo "<p class='text-red-700 flex items-center'>
+                    <i class='fas fa-clock text-red-500 mr-2'></i>
+                    {$conflict}
+                  </p>";
+        }
+        
+        echo "</div>
+                </div>
+                
+                <div class='flex flex-col items-center mt-6 space-y-3'>
+                    <a href='reservation.php' class='w-full inline-flex justify-center items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md'>
+                        <i class='fas fa-arrow-left mr-2'></i>
+                        Return to Reservations
+                    </a>
+                    
+                    <p class='text-sm text-gray-500 mt-2'>
+                        <i class='fas fa-info-circle mr-1'></i>
+                        Please choose a different time, date, or room.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>";
+        exit;
+    }
+
+    // Additional check for any lab schedule on the selected date
+    $check_date_schedule = "SELECT ls.*, 
+                           CASE 
+                               WHEN ls.is_recurring = 1 THEN DAYNAME(ls.schedule_date)
+                               ELSE NULL 
+                           END as day_name
+                           FROM lab_schedules ls
+                           WHERE ls.room_id = ? 
+                           AND ls.status = 'active'
+                           AND (
+                               -- Check recurring schedules
+                               (ls.is_recurring = 1 AND DAYNAME(?) = DAYNAME(ls.schedule_date))
+                               OR 
+                               -- Check specific date schedules
+                               (ls.is_recurring = 0 AND DATE(?) = ls.schedule_date)
+                           )";
+    
+    $stmt = $conn->prepare($check_date_schedule);
+    $stmt->bind_param("iss", $room_id, $reservation_date, $reservation_date);
+    $stmt->execute();
+    $date_schedule_result = $stmt->get_result();
+    
+    if ($date_schedule_result->num_rows > 0) {
+        $schedules = [];
+        while ($schedule = $date_schedule_result->fetch_assoc()) {
+            $schedule_type = $schedule['is_recurring'] ? 'recurring' : 'specific';
+            $day_name = $schedule['day_name'] ?? date('l', strtotime($schedule['schedule_date']));
+            $start_time = date('h:i A', strtotime($schedule['start_time']));
+            $end_time = date('h:i A', strtotime($schedule['end_time']));
+            
+            $schedules[] = "{$schedule_type} schedule on {$day_name} from {$start_time} to {$end_time}";
+        }
+        
+        $schedule_message = implode("\n", $schedules);
+        echo "<!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Room Schedule Alert</title>
+            <script src='https://cdn.tailwindcss.com'></script>
+            <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>
+        </head>
+        <body class='bg-gray-50 min-h-screen flex items-center justify-center p-4'>
+            <div class='bg-white rounded-xl shadow-xl p-8 max-w-md w-full border border-yellow-100'>
+                <div class='text-center mb-6'>
+                    <div class='inline-flex items-center justify-center w-20 h-20 rounded-full bg-yellow-100 text-yellow-600 mb-4'>
+                        <i class='fas fa-calendar-alt text-4xl'></i>
+                    </div>
+                    <h2 class='text-2xl font-bold text-gray-800 mb-2'>Room Schedule Alert</h2>
+                    <p class='text-gray-600'>This room has scheduled activities on the selected date.</p>
+                </div>
+                
+                <div class='bg-yellow-50 rounded-lg border border-yellow-200 py-6 px-4 my-6'>
+                    <h3 class='text-lg font-semibold text-yellow-800 mb-3'>Scheduled Activities:</h3>
+                    <div class='space-y-2'>";
+        
+        foreach ($schedules as $schedule) {
+            echo "<p class='text-yellow-700 flex items-center'>
+                    <i class='fas fa-clock text-yellow-500 mr-2'></i>
+                    {$schedule}
+                  </p>";
+        }
+        
+        echo "</div>
+                </div>
+                
+                <div class='flex flex-col items-center mt-6 space-y-3'>
+                    <a href='reservation.php' class='w-full inline-flex justify-center items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md'>
+                        <i class='fas fa-arrow-left mr-2'></i>
+                        Return to Reservations
+                    </a>
+                    
+                    <p class='text-sm text-gray-500 mt-2'>
+                        <i class='fas fa-info-circle mr-1'></i>
+                        Please choose a different time or room.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>";
+        exit;
+    }
+
     // Insert reservation
     $insert_query = "INSERT INTO reservations (idno, room_id, computer_id, start_time, end_time, status, sitin_purpose) 
                     VALUES (?, ?, ?, ?, ?, 'pending', ?)";
     
     $stmt = $conn->prepare($insert_query);
-    $purpose = $_POST['purpose'];  // Store the purpose in a variable first
-    $start_time = date('Y-m-d H:i:s');
-    $end_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
-    $stmt->bind_param("iiisss", $idno, $room_id, $computer_id, $start_time, $end_time, $purpose);
+    $start_datetime = $reservation_date . ' ' . $reservation_time;
+    $end_datetime = date('Y-m-d H:i:s', strtotime($start_datetime . ' +1 hour'));
+    $stmt->bind_param("iiisss", $idno, $room_id, $computer_id, $start_datetime, $end_datetime, $purpose);
     $stmt->execute();
 
     // Get computer name for sitin record
     $computer_name = $computer["computer_name"];
     $room_name = $computer["room_name"];
-
 
     //FETCH LAST STATUS OF RESERVATION
     $reservation_id = $conn->insert_id;
@@ -159,17 +370,24 @@ try {
                         </p>
                     </div>
                     <div class='flex flex-col'>
+                        <p class='text-sm text-blue-500 font-medium mb-1'>Date</p>
+                        <p class='font-medium text-gray-700 flex items-center'>
+                            <i class='far fa-calendar text-blue-400 mr-2'></i>
+                            " . date('M d, Y', strtotime($reservation_date)) . "
+                        </p>
+                    </div>
+                    <div class='flex flex-col'>
                         <p class='text-sm text-blue-500 font-medium mb-1'>Start Time</p>
                         <p class='font-medium text-gray-700 flex items-center'>
                             <i class='far fa-clock text-blue-400 mr-2'></i>
-                            " . date('h:i A') . "
+                            " . date('h:i A', strtotime($reservation_time)) . "
                         </p>
                     </div>
                     <div class='flex flex-col'>
                         <p class='text-sm text-blue-500 font-medium mb-1'>End Time</p>
                         <p class='font-medium text-gray-700 flex items-center'>
                             <i class='far fa-clock text-blue-400 mr-2'></i>
-                            " . date('h:i A', strtotime('+1 hour')) . "
+                            " . date('h:i A', strtotime($end_time)) . "
                         </p>
                     </div>
                 </div>
