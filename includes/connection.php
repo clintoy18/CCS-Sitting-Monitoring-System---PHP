@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "ccsmonitoringsystem";
+$dbname = "ccsmonitoringsystem3";
 
     //Create connection
     try{

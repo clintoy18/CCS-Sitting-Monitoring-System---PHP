@@ -101,7 +101,7 @@ include "auth.php";
             // Get count of approved reservations
             if (isset($_SESSION["idno"])) {
                 $userID = $_SESSION["idno"];
-                $approved_query = "SELECT COUNT(*) as count FROM reservations WHERE idno = ? AND status = 'approved'";
+                $approved_query = "SELECT COUNT(*) as count FROM reservations WHERE idno = ? AND status = 'approved' || status = 'disapproved'";
                 $stmt = $conn->prepare($approved_query);
                 $stmt->bind_param("i", $userID);
                 $stmt->execute();
@@ -126,7 +126,7 @@ include "auth.php";
                                  FROM reservations r 
                                  JOIN computers c ON r.computer_id = c.computer_id 
                                  JOIN rooms rm ON r.room_id = rm.room_id 
-                                 WHERE r.idno = ? AND r.status = 'approved' 
+                                 WHERE r.idno = ? AND r.status = 'approved' OR r.status = 'disapproved'
                                  ORDER BY r.start_time DESC 
                                  LIMIT 5";
                   $stmt = $conn->prepare($recent_query);
@@ -136,6 +136,7 @@ include "auth.php";
                   
                   if ($recent_result->num_rows > 0) {
                       while ($row = $recent_result->fetch_assoc()) {
+                        if($row['status'] == 'approved'){
                           echo '<div class="p-4 hover:bg-gray-50 border-b border-gray-200">
                                   <div class="flex items-start">
                                       <div class="flex-1">
@@ -147,6 +148,19 @@ include "auth.php";
                                       </div>
                                   </div>
                                 </div>';
+                        }else{
+                        echo '<div class="p-4 hover:bg-gray-50 border-b border-gray-200">
+                        <div class="flex items-start">
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-800">
+                                    <span class="font-semibold text-red-600">Reservation Disapproved!</span><br>
+                                    PC ' . htmlspecialchars($row['computer_name']) . ' in Lab ' . htmlspecialchars($row['room_name']) . '
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">' . date('M d, Y h:i A', strtotime($row['start_time'])) . '</p>
+                            </div>
+                        </div>
+                      </div>';
+                        }
                       }
                   } else {
                       echo '<div class="p-4 text-center text-gray-500">No approved reservations</div>';

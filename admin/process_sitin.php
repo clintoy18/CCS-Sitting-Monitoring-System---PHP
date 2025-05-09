@@ -3,7 +3,7 @@ include "../includes/connection.php";  // Database connection
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $idnos = $_POST['idno'];
-    $sitin_purposes = $_POST['sitin_purpose'];
+    $sitin_purposes = $_POST['  '];
     $labs = $_POST['lab']; // Rename to $labs to avoid confusion
     $computers = isset($_POST['computer']) ? $_POST['computer'] : array_fill(0, count($idnos), null);
 

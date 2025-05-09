@@ -35,7 +35,7 @@ $reservationResult = $conn->query($query);
                     <select name="status" id="status" class="w-full border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors duration-200">
                         <option value="">All Status</option>
                         <option value="approved" <?php echo isset($_GET['status']) && $_GET['status'] == 'approved' ? 'selected' : ''; ?>>Approved</option>
-                        <option value="rejected" <?php echo isset($_GET['status']) && $_GET['status'] == 'rejected' ? 'selected' : ''; ?>>Rejected</option>
+                        <option value="disapproved" <?php echo isset($_GET['status']) && $_GET['status'] == 'disapproved' ? 'selected' : ''; ?>>Rejected</option>
                         <option value="pending" <?php echo isset($_GET['status']) && $_GET['status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
                         <option value="completed" <?php echo isset($_GET['status']) && $_GET['status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
                     </select>
